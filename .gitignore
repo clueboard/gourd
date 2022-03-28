@@ -1,0 +1,4 @@
+DOCKER_RUN
+.note
+counter_data.json
+sent_alert_data.json
