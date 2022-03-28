@@ -7,7 +7,7 @@ Gourd is an opinionated framework for writing MQTT applications.
 ```python
 from gourd import Gourd
 
-mqtt = Gourd(app_name='my_app', server='localhost', port=1883, user='mqtt', password='my_password')
+mqtt = Gourd(app_name='my_app', mqtt_host='localhost', mqtt_port=1883, mqtt_user='mqtt', mqtt_pass='my_password')
 
 
 @mqtt.subscribe('#')
