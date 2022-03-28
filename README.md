@@ -23,7 +23,8 @@ if __name__ == '__main__':
 
 * Create a fully-functional MQTT app in minutes
 * Status published to `<app_name>/<hostname>/status` with a Last Will and Testament
-* Use decorators to associate topics with functions
+* Debug logs published to `<app_name>/<hostname>/debug`
+* Use decorators to associate topics with one or more functions
 
 # Installation
 
