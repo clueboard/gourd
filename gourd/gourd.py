@@ -14,22 +14,24 @@ class Gourd:
     """An opinionated framework for writing MQTT applications.
 
     Args:
-        app_name                The name of your application (typically used as the base of your mqtt topic(s))
-        mqtt_host               The MQTT server to connect to
-        mqtt_port               The port number to connect to
-        username                The username to connect to the MQTT server with
-        password                The password to connect to the MQTT server with
-        qos                     Default QOS Level for messages
-        timeout                 The timeout for the MQTT connection
-        log_topic               The MQTT topic to send debug logs to
-        status_topic            The topic to publish application status (ON/OFF) to
-        status_online           The payload to publish to status_topic when we are running
-        status_offline          The payload to publish to status_topic when we are not running
-        max_inflight_messages   How many messages can be in-flight. See Paho MQTT documentation for more details.
-        max_queued_messages     How many messages can be queued at a time. See Paho MQTT documentation for more details.
-        message_retry_sec       How long to wait before retrying messages. See Paho MQTT documentation for more details.
+        app_name                    The name of your application (typically used as the base of your mqtt topic(s))
+        mqtt_host='localhost'       The MQTT server to connect to
+        mqtt_port=1883              The port number to connect to
+        username=''                 The username to connect to the MQTT server with
+        password=''                 The password to connect to the MQTT server with
+        qos=1                       Default QOS Level for messages
+        timeout=30                  The timeout for the MQTT connection
+        log_mqtt=True               Set to false to disable mqtt logging
+        log_topic=None              The MQTT topic to send debug logs to (When None it's f'{app_name}/{gethostname()}/debug')
+        status_enabled=True         Set to false to disable the status topic
+        status_topic=None           The topic to publish application status (ON/OFF) to (When None it's f'{app_name}/{gethostname()}/status')
+        status_online='ON'          The payload to publish to status_topic when we are running
+        status_offline='OFF'        The payload to publish to status_topic when we are not running
+        max_inflight_messages=20    How many messages can be in-flight. See Paho MQTT documentation for more details.
+        max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
+        message_retry_sec=5         How long to wait before retrying messages. See Paho MQTT documentation for more details.
     """
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_topic=None, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=5):
+    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=5):
         self.name = app_name
         self.mqtt_host = mqtt_host
         self.mqtt_port = mqtt_port
@@ -39,6 +41,7 @@ class Gourd:
         self.timeout = timeout
 
         # Setup the status topic
+        self.status_enabled = status_enabled
         self.status_topic = status_topic
         self.status_online = status_online
         self.status_offline = status_offline
@@ -65,15 +68,19 @@ class Gourd:
         self.mqtt.on_connect = self.on_connect
         self.mqtt.on_disconnect = self.on_disconnect
         self.mqtt.on_message = self.on_message
-        self.mqtt.will_set(self.status_topic, payload=self.status_offline, qos=1, retain=True)
+
+        if self.status_enabled:
+            self.mqtt.will_set(self.status_topic, payload=self.status_offline, qos=1, retain=True)
 
         # Setup MQTT logging
-        self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False)
-        self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
+        self.mqtt_log_handler = None
+        if log_mqtt:
+            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False)
+            self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
+            self.log.addHandler(self.mqtt_log_handler)
 
         # Register handlers
         atexit.register(self.on_exit)
-        self.log.addHandler(self.mqtt_log_handler)
 
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
         """Publish a message to the MQTT server.
@@ -115,7 +122,8 @@ class Gourd:
         if rc != 0:
             cli.log.error("Could not connect. Error: " + str(rc))
         else:
-            self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
+            if self.status_enabled:
+                self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
             self.do_subscribe()
 
     def on_disconnect(self, client, userdata, flags, rc=None):
@@ -126,7 +134,8 @@ class Gourd:
     def on_exit(self):
         """Called when exiting to ensure we cleanup and disconnect cleanly.
         """
-        self.mqtt.publish(self.status_topic, payload=self.status_offline, qos=1, retain=True)
+        if self.status_enabled:
+            self.mqtt.publish(self.status_topic, payload=self.status_offline, qos=1, retain=True)
         self.mqtt.disconnect()
 
     def on_message(self, client, userdata, msg):
