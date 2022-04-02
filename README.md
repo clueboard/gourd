@@ -114,8 +114,6 @@ These are the arguments that only need to be set if the default behavior does no
 
 Once you've instaniated your gourd object you can use the `subscribe` decorator to subscribe to a topic. This will both subscribe to the specified topic and register your function to be called when a message for that topic is received. You can register multiple functions for the same topic and they will be called in the order they were registered.
 
-Example:
-
 ```python
     def subscribe(self, topic):
 ```
