@@ -1,4 +1,6 @@
 -r requirements.txt
+build
+bumpversion
 flake8
 nose2
 semver

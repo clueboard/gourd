@@ -38,7 +38,7 @@ WIP
 
 # Reporting Bugs and Requesting Features
 
-Please let us know about any bugs and/or feature requests you have: <>
+Please let us know about any bugs and/or feature requests you have: <https://github.com/clueboard/gourd/issues>
 
 # Contributing
 

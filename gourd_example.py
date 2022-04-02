@@ -4,14 +4,14 @@ import logging
 from gourd import Gourd
 
 logging.basicConfig()
-mqtt = Gourd(app_name='example', mqtt_host='172.16.22.1')
+app = Gourd(app_name='gourd_example', mqtt_host='172.16.22.1')
 
 
-@mqtt.subscribe('#')
+@app.subscribe('#')
 def my_topic_here(message):
     print('Received message on topic', message.topic)
     print(message.payload)
 
 
 if __name__ == '__main__':
-    mqtt.run_forever()
+    app.run_forever()
