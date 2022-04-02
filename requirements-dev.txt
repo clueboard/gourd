@@ -4,4 +4,5 @@ bumpversion
 flake8
 nose2
 semver
+twine
 yapf
