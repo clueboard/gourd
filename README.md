@@ -30,12 +30,6 @@ $ gourd gourd_example:app
 * Debug logs published to `<app_name>/<hostname>/debug`
 * Use decorators to associate topics with one or more functions
 
-# Installation
-
-Gourd is available on pypi, you can use pip to install it:
-
-    python3 -m pip install gourd
-
 # Documentation
 
 ## Installation
