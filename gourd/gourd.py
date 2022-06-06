@@ -1,4 +1,5 @@
 import atexit
+import json
 import logging
 import re
 from os import environ
@@ -6,6 +7,7 @@ from socket import gethostname
 
 import paho.mqtt.client
 
+from .gourd_message import GourdMessage
 from .mqtt_log_handler import MQTTLogHandler
 from .mqtt_wildcard import mqtt_wildcard
 
@@ -146,7 +148,7 @@ class Gourd:
         for topic, funcs in self.mqtt_topics.items():
             if mqtt_wildcard(msg.topic, topic):
                 for func in funcs:
-                    func(msg)
+                    func(GourdMessage(msg))
 
     def run_forever(self):
         """Run the program until forcibly quit.

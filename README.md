@@ -29,6 +29,7 @@ $ gourd gourd_example:app
 * Status published to `<app_name>/<hostname>/status` with a Last Will and Testament
 * Debug logs published to `<app_name>/<hostname>/debug`
 * Use decorators to associate topics with one or more functions
+* JSON dictionary payloads automatically decoded to `msg.json`.
 
 # Documentation
 
