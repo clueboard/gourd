@@ -143,7 +143,7 @@ class Gourd:
     def on_message(self, client, userdata, msg):
         """Called when paho has a message from the queue to process.
         """
-        self.log.info('Got a message for topic:%s payload:%s', msg.topic, msg.payload)
+        self.log.debug('Got a message for topic:%s payload:%s', msg.topic, msg.payload)
 
         for topic, funcs in self.mqtt_topics.items():
             if mqtt_wildcard(msg.topic, topic):
