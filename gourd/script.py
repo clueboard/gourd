@@ -5,7 +5,7 @@ from importlib import import_module
 
 from milc import set_metadata
 
-__VERSION__ = '0.1.1'
+__VERSION__ = '0.1.2'
 
 set_metadata(name='Gourd', version=__VERSION__, author='Clueboard')
 
