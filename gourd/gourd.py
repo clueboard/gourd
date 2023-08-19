@@ -150,6 +150,12 @@ class Gourd:
                 for func in funcs:
                     func(GourdMessage(msg))
 
+    def loop_start(self):
+        """Run the program in a separate thread.
+        """
+        self.connect()
+        return self.mqtt.loop_start()
+
     def run_forever(self):
         """Run the program until forcibly quit.
         """

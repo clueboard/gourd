@@ -105,6 +105,20 @@ These are the arguments that only need to be set if the default behavior does no
     * Default: `5`
     * How long to wait before retrying messages. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
 
+### Useful functions
+
+#### `Gourd.publish(topic, payload=None, *, qos=None, **kwargs)
+
+This function will let you publish messages to MQTT. You can delete a retained message by passing a payload of None.
+
+All kwargs are passed directly to PaHo MQTT's `publish()`..
+
+#### `Gourd.loop_start()`
+
+This function will kick off Gourd in a separate thread, useful when you need to do something else in the main thread.
+
+Normally you do not need to use this, you will run your program using `gourd my_module:my_app`. However, if you need to control the main thread instead of gourd this function will spawn a separate thread for gourd to run in.
+
 ### `subscribe` Decorators
 
 Once you've instaniated your gourd object you can use the `subscribe` decorator to subscribe to a topic. This will both subscribe to the specified topic and register your function to be called when a message for that topic is received. You can register multiple functions for the same topic and they will be called in the order they were registered.
