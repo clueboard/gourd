@@ -107,7 +107,7 @@ These are the arguments that only need to be set if the default behavior does no
 
 ### Useful functions
 
-#### `Gourd.publish(topic, payload=None, *, qos=None, **kwargs)
+#### `Gourd.publish(topic, payload=None, *, qos=None, **kwargs)`
 
 This function will let you publish messages to MQTT. You can delete a retained message by passing a payload of None.
 
