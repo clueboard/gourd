@@ -145,10 +145,14 @@ class Gourd:
         """
         self.log.debug('Got a message for topic:%s payload:%s', msg.topic, msg.payload)
 
-        for topic, funcs in self.mqtt_topics.items():
-            if mqtt_wildcard(msg.topic, topic):
-                for func in funcs:
-                    func(GourdMessage(msg))
+        try:
+            for topic, funcs in self.mqtt_topics.items():
+                if mqtt_wildcard(msg.topic, topic):
+                    for func in funcs:
+                        func(GourdMessage(msg))
+        except Exception as e:
+            self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
+            self.log.exception(e)
 
     def loop_start(self):
         """Run the program in a separate thread.
