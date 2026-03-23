@@ -158,7 +158,8 @@ class Gourd:
     def loop_start(self):
         """Run the program in a separate thread.
         """
-        self.connect()
+        if not self.mqtt.is_connected():
+            self.connect()
         return self.mqtt.loop_start()
 
     def loop_stop(self):
