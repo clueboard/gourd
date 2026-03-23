@@ -17,6 +17,10 @@ class MQTTLogHandler(logging.Handler):
                 msg = self.format(record)
                 if self.topic not in msg and 'Received PUBACK' not in msg:
                     # Avoid loops by skipping log messages possibly triggered by us
-                    self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
+                    if self.lock:
+                        with self.lock:
+                            self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
+                    else:
+                        self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
             except Exception:
                 self.handleError(record)

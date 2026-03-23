@@ -116,8 +116,7 @@ class Gourd:
     def do_subscribe(self):
         """Subscribe to our topics.
         """
-        for topic in self.mqtt_topics:
-            self.mqtt.subscribe(topic)
+        self.mqtt.subscribe(list(self.mqtt_topics))
 
     def on_connect(self, client, userdata, flags, rc):
         """Called when an MQTT server connection is established.
@@ -174,4 +173,4 @@ class Gourd:
             self.connect()
             self.mqtt.loop_forever()
         except KeyboardInterrupt:
-            self.log.error('User interrupted with ^C...')
+            self.log.info('User interrupted with ^C...')
