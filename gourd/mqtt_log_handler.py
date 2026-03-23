@@ -1,21 +1,18 @@
 import logging
 
-from paho.mqtt.client import mqtt_cs_connected, mqtt_cs_connect_async
-
-MQTT_CONNECTED = (mqtt_cs_connected, mqtt_cs_connect_async)
-
 
 class MQTTLogHandler(logging.Handler):
-    def __init__(self, mqtt_client, topic, qos=0, retain=False):
+    def __init__(self, mqtt_client, topic, qos=0, retain=False, lock=None):
         super().__init__()
 
         self.mqtt = mqtt_client
         self.topic = topic
         self.qos = qos
         self.retain = retain
+        self.lock = lock
 
     def emit(self, record):
-        if self.mqtt._state in MQTT_CONNECTED:  # Only emit logs when MQTT is connected
+        if self.mqtt.is_connected:  # Only emit logs when MQTT is connected
             try:
                 msg = self.format(record)
                 if self.topic not in msg and 'Received PUBACK' not in msg:

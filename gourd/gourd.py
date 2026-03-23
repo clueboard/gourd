@@ -2,6 +2,7 @@ import atexit
 import json
 import logging
 import re
+from threading import Lock
 from os import environ
 from socket import gethostname
 
@@ -41,6 +42,7 @@ class Gourd:
         self.qos = qos
         self.mqtt_topics = {}
         self.timeout = timeout
+        self.lock = Lock()
 
         # Setup the status topic
         self.status_enabled = status_enabled
@@ -77,7 +79,7 @@ class Gourd:
         # Setup MQTT logging
         self.mqtt_log_handler = None
         if log_mqtt:
-            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False)
+            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False, lock=self.lock)
             self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
             self.log.addHandler(self.mqtt_log_handler)
 
@@ -159,6 +161,11 @@ class Gourd:
         """
         self.connect()
         return self.mqtt.loop_start()
+
+    def loop_stop(self):
+        """Stop the mqtt loop.
+        """
+        return self.mqtt.loop_stop()
 
     def run_forever(self):
         """Run the program until forcibly quit.
