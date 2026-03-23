@@ -124,13 +124,13 @@ class Gourd:
         """
         self.log.info("MQTT connected: %s", paho.mqtt.client.connack_string(rc))
         if rc != 0:
-            cli.log.error("Could not connect. Error: " + str(rc))
+            self.log.error("Could not connect. Error: " + str(rc))
         else:
             if self.status_enabled:
                 self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
             self.do_subscribe()
 
-    def on_disconnect(self, client, userdata, flags, rc=None):
+    def on_disconnect(self, client, userdata, rc):
         """Called when an MQTT server is disconnected.
         """
         self.log.error("MQTT disconnected: %s", paho.mqtt.client.connack_string(rc))
@@ -147,14 +147,14 @@ class Gourd:
         """
         self.log.debug('Got a message for topic:%s payload:%s', msg.topic, msg.payload)
 
-        try:
-            for topic, funcs in self.mqtt_topics.items():
-                if mqtt_wildcard(msg.topic, topic):
-                    for func in funcs:
+        for topic, funcs in self.mqtt_topics.items():
+            if mqtt_wildcard(msg.topic, topic):
+                for func in funcs:
+                    try:
                         func(GourdMessage(msg))
-        except Exception as e:
-            self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
-            self.log.exception(e)
+                    except Exception as e:
+                        self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
+                        self.log.exception(e)
 
     def loop_start(self):
         """Run the program in a separate thread.

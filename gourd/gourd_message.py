@@ -1,4 +1,8 @@
 import json
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class GourdMessage:
     def __init__(self, mqtt_message):
@@ -15,11 +19,11 @@ class GourdMessage:
         if self._json is None:
             self._json = {}
 
-            if self.payload[0] == '{' and self.payload[-1] == '}':
+            if self.payload.startswith('{') and self.payload.endswith('}'):
                 try:
                     self._json = json.loads(self.payload)
                 except Exception as e:
-                    self.log.debug('Could not decode payload as json dictionary: %s', self.payload)
+                    log.debug('Could not decode payload as json dictionary: %s', self.payload)
 
         return self._json
 

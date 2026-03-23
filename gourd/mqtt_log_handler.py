@@ -12,7 +12,7 @@ class MQTTLogHandler(logging.Handler):
         self.lock = lock
 
     def emit(self, record):
-        if self.mqtt.is_connected:  # Only emit logs when MQTT is connected
+        if self.mqtt.is_connected():  # Only emit logs when MQTT is connected
             try:
                 msg = self.format(record)
                 if self.topic not in msg and 'Received PUBACK' not in msg:
