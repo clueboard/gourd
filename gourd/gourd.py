@@ -116,7 +116,7 @@ class Gourd:
     def do_subscribe(self):
         """Subscribe to our topics.
         """
-        self.mqtt.subscribe(list(self.mqtt_topics))
+        self.mqtt.subscribe([(topic, self.qos) for topic in self.mqtt_topics])
 
     def on_connect(self, client, userdata, flags, rc):
         """Called when an MQTT server connection is established.
@@ -132,13 +132,17 @@ class Gourd:
     def on_disconnect(self, client, userdata, rc):
         """Called when an MQTT server is disconnected.
         """
-        self.log.error("MQTT disconnected: %s", paho.mqtt.client.connack_string(rc))
+        if rc == 0:
+            self.log.info("MQTT disconnected cleanly")
+        else:
+            self.log.error("MQTT disconnected unexpectedly (rc=%s)", rc)
 
     def on_exit(self):
         """Called when exiting to ensure we cleanup and disconnect cleanly.
         """
         if self.status_enabled:
             self.mqtt.publish(self.status_topic, payload=self.status_offline, qos=1, retain=True)
+            self.mqtt.loop(timeout=0.5)  # Give the publish a chance to transmit before disconnecting
         self.mqtt.disconnect()
 
     def on_message(self, client, userdata, msg):
