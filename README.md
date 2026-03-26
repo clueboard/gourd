@@ -1,6 +1,8 @@
 # Gourd - An MQTT framework
 
-Gourd is an opinionated framework for writing MQTT applications. 
+Gourd is an opinionated framework for writing MQTT applications.
+
+> See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) if you are upgrading from a previous version.
 
 # Simple example
 
@@ -102,8 +104,7 @@ These are the arguments that only need to be set if the default behavior does no
     * Default: `0`
     * How many messages can be queued at a time. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
 * message_retry_sec
-    * Default: `5`
-    * How long to wait before retrying messages. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
+    * **Deprecated.** This argument is ignored and will be removed in a future release.
 
 ### Useful functions
 

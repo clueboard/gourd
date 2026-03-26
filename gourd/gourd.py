@@ -7,6 +7,7 @@ from os import environ
 from socket import gethostname
 
 import paho.mqtt.client
+from paho.mqtt.client import CallbackAPIVersion
 
 from .gourd_message import GourdMessage
 from .mqtt_log_handler import MQTTLogHandler
@@ -32,9 +33,17 @@ class Gourd:
         status_offline='OFF'        The payload to publish to status_topic when we are not running
         max_inflight_messages=20    How many messages can be in-flight. See Paho MQTT documentation for more details.
         max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
-        message_retry_sec=5         How long to wait before retrying messages. See Paho MQTT documentation for more details.
+        message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=5):
+    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
+        if message_retry_sec is not None:
+            import warnings
+            warnings.warn(
+                "message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         self.name = app_name
         self.mqtt_host = mqtt_host
         self.mqtt_port = mqtt_port
@@ -61,13 +70,12 @@ class Gourd:
             log_topic = f'{app_name}/{gethostname()}/debug'
 
         # Setup MQTT
-        self.mqtt = paho.mqtt.client.Client()
+        self.mqtt = paho.mqtt.client.Client(callback_api_version=CallbackAPIVersion.VERSION2)
         paho_log = logging.getLogger(__name__ + '.paho')
         paho_log.propagate = False
         self.mqtt.enable_logger(paho_log)
         self.mqtt.max_inflight_messages_set(max_inflight_messages)
         self.mqtt.max_queued_messages_set(max_queued_messages)
-        self.mqtt.message_retry_set(message_retry_sec)
         self.mqtt.username_pw_set(username, password)
 
         # Register mqtt callbacks
@@ -120,24 +128,24 @@ class Gourd:
         """
         self.mqtt.subscribe([(topic, self.qos) for topic in self.mqtt_topics])
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, connect_flags, reason_code, properties):
         """Called when an MQTT server connection is established.
         """
-        self.log.info("MQTT connected: %s", paho.mqtt.client.connack_string(rc))
-        if rc != 0:
-            self.log.error("Could not connect. Error: %s", rc)
+        self.log.info("MQTT connected: %s", reason_code)
+        if reason_code.is_failure:
+            self.log.error("Could not connect. Error: %s", reason_code)
         else:
             if self.status_enabled:
                 self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
             self.do_subscribe()
 
-    def on_disconnect(self, client, userdata, rc):
+    def on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
         """Called when an MQTT server is disconnected.
         """
-        if rc == 0:
+        if not reason_code.is_failure:
             self.log.info("MQTT disconnected cleanly")
         else:
-            self.log.error("MQTT disconnected unexpectedly (rc=%s)", rc)
+            self.log.error("MQTT disconnected unexpectedly (rc=%s)", reason_code)
 
     def on_exit(self):
         """Called when exiting to ensure we cleanup and disconnect cleanly.

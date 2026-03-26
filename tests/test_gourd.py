@@ -2,6 +2,12 @@
 from unittest.mock import MagicMock, call, patch
 
 
+def make_reason_code(failure=False):
+    rc = MagicMock()
+    rc.is_failure = failure
+    return rc
+
+
 def make_gourd(status_enabled=False):
     with patch('gourd.gourd.paho.mqtt.client.Client'):
         with patch('gourd.gourd.atexit.register'):
@@ -70,20 +76,20 @@ def test_publish_passes_kwargs():
 
 def test_on_connect_success_publishes_status():
     app = make_gourd(status_enabled=True)
-    app.on_connect(None, None, None, 0)
+    app.on_connect(None, None, None, make_reason_code(failure=False), None)
     app.mqtt.publish.assert_any_call(app.status_topic, payload=app.status_online, qos=1, retain=True)
 
 
 def test_on_connect_success_subscribes():
     app = make_gourd()
     app.mqtt_topics['test/topic'] = []
-    app.on_connect(None, None, None, 0)
+    app.on_connect(None, None, None, make_reason_code(failure=False), None)
     app.mqtt.subscribe.assert_called_once()
 
 
 def test_on_connect_failure_skips_status_and_subscribe():
     app = make_gourd(status_enabled=True)
-    app.on_connect(None, None, None, 1)
+    app.on_connect(None, None, None, make_reason_code(failure=True), None)
     app.mqtt.publish.assert_not_called()
     app.mqtt.subscribe.assert_not_called()
 
@@ -91,7 +97,7 @@ def test_on_connect_failure_skips_status_and_subscribe():
 def test_on_connect_status_disabled():
     app = make_gourd(status_enabled=False)
     app.mqtt_topics['test/topic'] = []
-    app.on_connect(None, None, None, 0)
+    app.on_connect(None, None, None, make_reason_code(failure=False), None)
     app.mqtt.publish.assert_not_called()
     app.mqtt.subscribe.assert_called_once()
 
@@ -100,12 +106,12 @@ def test_on_connect_status_disabled():
 
 def test_on_disconnect_clean():
     app = make_gourd()
-    app.on_disconnect(None, None, 0)  # should not raise
+    app.on_disconnect(None, None, None, make_reason_code(failure=False), None)  # should not raise
 
 
 def test_on_disconnect_unexpected():
     app = make_gourd()
-    app.on_disconnect(None, None, 7)  # should not raise
+    app.on_disconnect(None, None, None, make_reason_code(failure=True), None)  # should not raise
 
 
 # --- on_exit ---
