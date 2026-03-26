@@ -62,7 +62,9 @@ class Gourd:
 
         # Setup MQTT
         self.mqtt = paho.mqtt.client.Client()
-        self.mqtt.enable_logger(self.log)
+        paho_log = logging.getLogger(__name__ + '.paho')
+        paho_log.propagate = False
+        self.mqtt.enable_logger(paho_log)
         self.mqtt.max_inflight_messages_set(max_inflight_messages)
         self.mqtt.max_queued_messages_set(max_queued_messages)
         self.mqtt.message_retry_set(message_retry_sec)

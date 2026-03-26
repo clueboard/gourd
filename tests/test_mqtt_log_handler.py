@@ -29,17 +29,6 @@ def test_emits_when_connected():
     mqtt.publish.assert_called_once()
 
 
-def test_skips_message_containing_topic():
-    handler, mqtt = make_handler(connected=True)
-    handler.emit(make_record('published to app/log'))
-    mqtt.publish.assert_not_called()
-
-
-def test_skips_puback_message():
-    handler, mqtt = make_handler(connected=True)
-    handler.emit(make_record('Received PUBACK for mid 1'))
-    mqtt.publish.assert_not_called()
-
 
 def test_acquires_lock_when_provided():
     lock = MagicMock()

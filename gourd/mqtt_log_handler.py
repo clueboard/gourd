@@ -15,12 +15,10 @@ class MQTTLogHandler(logging.Handler):
         if self.mqtt.is_connected():  # Only emit logs when MQTT is connected
             try:
                 msg = self.format(record)
-                if self.topic not in msg and 'Received PUBACK' not in msg:
-                    # Avoid loops by skipping log messages possibly triggered by us
-                    if self.lock:
-                        with self.lock:
-                            self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
-                    else:
+                if self.lock:
+                    with self.lock:
                         self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
+                else:
+                    self.mqtt.publish(topic=self.topic, payload=msg, qos=self.qos, retain=self.retain)
             except Exception:
                 self.handleError(record)
