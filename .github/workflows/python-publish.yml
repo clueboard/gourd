@@ -7,9 +7,15 @@ on:
   workflow_dispatch:
     inputs:
       version_part:
-        description: 'Which part of the version to increment (patch, minor, major)'
+        description: 'Version bump (or "current" to publish without bumping)'
         required: true
         default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - current
 
 jobs:
   deploy:
@@ -37,9 +43,11 @@ jobs:
         git config --local user.email "skullydazed@gmail.com"
         git config --local user.name "Zach White"
     - name: Bump version
+      if: github.event.inputs.version_part != 'current'
       run: |
         bumpversion ${{ github.event.inputs.version_part }}
     - name: Push changes
+      if: github.event.inputs.version_part != 'current'
       run: git push --follow-tags
     - name: Build and publish
       env:
