@@ -23,7 +23,7 @@ class GourdMessage:
                 try:
                     self._json = json.loads(self.payload)
                 except Exception as e:
-                    log.debug('Could not decode payload as json dictionary: %s', self.payload)
+                    log.warning('Could not decode payload as JSON: %s (%s)', self.payload, e)
 
         return self._json
 

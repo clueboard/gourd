@@ -36,9 +36,13 @@ def test_json_valid():
     assert msg.json == {'key': 'value'}
 
 
-def test_json_invalid_returns_empty_dict():
-    msg = GourdMessage(make_paho_msg(b'{not valid json}'))
-    assert msg.json == {}
+def test_json_invalid_returns_empty_dict(caplog):
+    import logging
+    with caplog.at_level(logging.WARNING, logger='gourd.gourd_message'):
+        msg = GourdMessage(make_paho_msg(b'{not valid json}'))
+        assert msg.json == {}
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelname == 'WARNING'
 
 
 def test_json_empty_payload_returns_empty_dict():
