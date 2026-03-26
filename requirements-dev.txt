@@ -2,7 +2,7 @@
 build
 bumpversion
 flake8
-nose2
+pytest
 semver
 twine
 yapf
