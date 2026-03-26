@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — Gourd</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav>
+    <a href="/" class="site-title">Gourd</a>
+    <ul>
+      <li><a href="/"{% if page.url == "/" %} class="active"{% endif %}>Home</a></li>
+      {% set currentUrl = page.url %}
+      {%- for item in collections.docs | sort(false, false, 'data.order') %}
+      <li><a href="{{ item.url }}"{% if item.url == currentUrl %} class="active"{% endif %}>{{ item.data.title }}</a></li>
+      {%- endfor %}
+    </ul>
+  </nav>
+  <main>
+    <article>
+      {{ content | safe }}
+    </article>
+  </main>
+</body>
+</html>

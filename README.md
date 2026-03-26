@@ -35,13 +35,35 @@ $ gourd gourd_example:app
 
 # Documentation
 
-Full documentation is available in the [docs/](docs/) directory:
+Full documentation is available at **https://gourd.clueboard.co/** and in the [docs/](docs/) directory:
 
 * [Getting Started](docs/getting-started.md)
 * [Configuration](docs/configuration.md)
 * [API Reference](docs/api-reference.md)
 * [Examples](docs/examples.md)
 * [Upgrading](docs/upgrading.md)
+
+### Working on the Docs
+
+The docs site is built with [Eleventy](https://www.11ty.dev/) and deployed automatically to GitHub Pages on every push to `main`.
+
+**Prerequisites:** Node.js 20+
+
+Install dependencies:
+
+    npm install
+
+Local development server (live-reloads on file changes):
+
+    npm run dev
+
+Then open http://localhost:8080.
+
+Build the site:
+
+    npm run build
+
+Output goes to `_site/` (gitignored).
 
 ## Installation
 

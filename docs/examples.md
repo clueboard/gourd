@@ -1,3 +1,10 @@
+---
+layout: base.njk
+title: Examples
+order: 4
+tags: docs
+---
+
 # Examples
 
 ## Basic App

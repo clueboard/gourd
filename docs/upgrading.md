@@ -1,3 +1,10 @@
+---
+layout: base.njk
+title: Upgrading
+order: 5
+tags: docs
+---
+
 # Upgrading
 
 ## Upgrading to 1.0.0

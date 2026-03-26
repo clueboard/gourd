@@ -1,3 +1,10 @@
+---
+layout: base.njk
+title: API Reference
+order: 3
+tags: docs
+---
+
 # API Reference
 
 ## `Gourd.subscribe(topic)`

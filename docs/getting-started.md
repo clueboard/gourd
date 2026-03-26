@@ -1,3 +1,10 @@
+---
+layout: base.njk
+title: Getting Started
+order: 1
+tags: docs
+---
+
 # Getting Started with Gourd
 
 Gourd is an opinionated Python framework for writing MQTT applications. It handles connection management, status reporting, and logging so you can focus on your application logic.
@@ -72,7 +79,7 @@ Press `Ctrl-C`. Gourd catches the interrupt, publishes the offline status payloa
 
 ## Next Steps
 
-- [Configuration](configuration.md) — all `Gourd()` constructor arguments
-- [API Reference](api-reference.md) — `subscribe`, `publish`, `GourdMessage`, and more
-- [Examples](examples.md) — copy-paste patterns for common tasks
-- [Upgrading](upgrading.md) — migration guide for breaking changes
+- [Configuration](../configuration/) — all `Gourd()` constructor arguments
+- [API Reference](../api-reference/) — `subscribe`, `publish`, `GourdMessage`, and more
+- [Examples](../examples/) — copy-paste patterns for common tasks
+- [Upgrading](../upgrading/) — migration guide for breaking changes

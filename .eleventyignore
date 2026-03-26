@@ -1,0 +1,16 @@
+node_modules/
+_site/
+dist/
+gourd/
+gourd.egg-info/
+tests/
+.pytest_cache/
+*.py
+*.cfg
+*.toml
+*.txt
+README.md
+BREAKING_CHANGES.md
+AGENTS.md
+CLAUDE.md
+LICENSE

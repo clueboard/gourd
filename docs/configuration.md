@@ -1,3 +1,10 @@
+---
+layout: base.njk
+title: Configuration
+order: 2
+tags: docs
+---
+
 # Configuration
 
 All configuration is passed to the `Gourd()` constructor when you create your app instance.
@@ -98,4 +105,4 @@ The `gourd` CLI also supports log file output and other log controls — run `go
 
 `message_retry_sec` was used to configure paho-mqtt v1's message retry interval. paho-mqtt v2 removed that API. Passing this argument now emits a `DeprecationWarning`. Remove it from your code.
 
-See [Upgrading](upgrading.md) for migration details.
+See [Upgrading](../upgrading/) for migration details.
