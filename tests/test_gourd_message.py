@@ -19,6 +19,11 @@ def test_bytes_payload_decoded():
     assert msg.payload == 'hello'
 
 
+def test_payload_stripped():
+    msg = GourdMessage(make_paho_msg(b'  hello\n'))
+    assert msg.payload == 'hello'
+
+
 def test_string_payload_passed_through():
     paho_msg = MagicMock()
     paho_msg.payload = 'already a string'

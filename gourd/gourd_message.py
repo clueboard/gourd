@@ -10,7 +10,7 @@ class GourdMessage:
         self._json = None
 
         try:
-            self.payload = mqtt_message.payload.decode('utf-8')
+            self.payload = mqtt_message.payload.decode('utf-8').strip()
         except AttributeError:
             self.payload = mqtt_message.payload
 
