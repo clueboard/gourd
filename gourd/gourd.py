@@ -125,7 +125,7 @@ class Gourd:
         """
         self.log.info("MQTT connected: %s", paho.mqtt.client.connack_string(rc))
         if rc != 0:
-            self.log.error("Could not connect. Error: " + str(rc))
+            self.log.error("Could not connect. Error: %s", rc)
         else:
             if self.status_enabled:
                 self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
