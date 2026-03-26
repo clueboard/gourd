@@ -35,6 +35,14 @@ $ gourd gourd_example:app
 
 # Documentation
 
+Full documentation is available in the [docs/](docs/) directory:
+
+* [Getting Started](docs/getting-started.md)
+* [Configuration](docs/configuration.md)
+* [API Reference](docs/api-reference.md)
+* [Examples](docs/examples.md)
+* [Upgrading](docs/upgrading.md)
+
 ## Installation
 
 Gourd is available on pypi and can be installed with pip:
@@ -49,7 +57,7 @@ To create your app you'll need an instance of the Gourd class. Unless your MQTT 
 
 ```python
 class Gourd:
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=5):
+    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
 ```
 
 #### Recommended arguments
@@ -86,7 +94,7 @@ These are the arguments that only need to be set if the default behavior does no
     * Default: Generated based on app_name and hostname: `{app_name}/{gethostname()}/debug`
     * The MQTT topic to send debug logs to
 * status_enabled
-    * Default: ``
+    * Default: `True`
     * Set to false to disable the status topic
 * status_topic
     * Default: Generated based app_name and hostname: `{app_name}/{gethostname()}/status`
