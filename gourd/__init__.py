@@ -1,3 +1,3 @@
 from .gourd import Gourd
 
-__VERSION__ = '0.1.3'
+__VERSION__ = '1.0.0'
