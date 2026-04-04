@@ -1,5 +1,5 @@
 """Unit tests for Gourd class methods."""
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, call, patch, ANY
 
 
 def make_reason_code(failure=False):
@@ -112,6 +112,74 @@ def test_on_disconnect_clean():
 def test_on_disconnect_unexpected():
     app = make_gourd()
     app.on_disconnect(None, None, None, make_reason_code(failure=True), None)  # should not raise
+
+
+# --- thread ---
+
+def test_thread_registers_handler():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread()(func)
+    assert func in (entry[0] for entry in app.thread_funcs)
+
+
+def test_thread_deduplicates():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread()(func)
+    app.thread()(func)
+    assert sum(1 for entry in app.thread_funcs if entry[0] is func) == 1
+
+
+def test_thread_returns_handler():
+    app = make_gourd()
+    func = MagicMock()
+    result = app.thread()(func)
+    assert result is func
+
+
+def test_thread_stores_args_and_kwargs():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread('a', key='val')(func)
+    entry = next(e for e in app.thread_funcs if e[0] is func)
+    assert entry[1] == ('a',)
+    assert entry[2] == {'key': 'val'}
+
+
+def test_run_forever_starts_threads():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread()(func)
+    with patch('gourd.gourd.threading.Thread') as mock_thread_cls:
+        mock_thread = MagicMock()
+        mock_thread_cls.return_value = mock_thread
+        app.run_forever()
+    mock_thread_cls.assert_called_once_with(target=func, args=(), kwargs={}, daemon=True)
+    mock_thread.start.assert_called_once()
+
+
+def test_loop_start_starts_threads():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread()(func)
+    app.mqtt.is_connected.return_value = True
+    with patch('gourd.gourd.threading.Thread') as mock_thread_cls:
+        mock_thread = MagicMock()
+        mock_thread_cls.return_value = mock_thread
+        app.loop_start()
+    mock_thread_cls.assert_called_once_with(target=func, args=(), kwargs={}, daemon=True)
+    mock_thread.start.assert_called_once()
+
+
+def test_thread_passes_args_to_function():
+    app = make_gourd()
+    func = MagicMock()
+    app.thread('x', key='y')(func)
+    with patch('gourd.gourd.threading.Thread') as mock_thread_cls:
+        mock_thread_cls.return_value = MagicMock()
+        app.run_forever()
+    mock_thread_cls.assert_called_once_with(target=func, args=('x',), kwargs={'key': 'y'}, daemon=True)
 
 
 # --- on_exit ---

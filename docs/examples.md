@@ -94,9 +94,9 @@ app.publish('devices/thermostat/setpoint', None, retain=True)
 
 ---
 
-## Background Thread with Main-Thread Loop
+## Background Threads
 
-Use `loop_start()` when you need the main thread for your own work (e.g. polling a sensor):
+Use `@app.thread()` to register functions that gourd will run in background threads when the app starts:
 
 ```python
 import time
@@ -111,18 +111,28 @@ app = Gourd(app_name='sensor_publisher', mqtt_host='broker.local')
 def handle_command(message):
     app.log.info(f'Command received: {message.topic} = {message.payload}')
 
-app.loop_start()
-
-try:
+@app.thread()
+def poll_sensor():
     while True:
         value = read_sensor()  # your sensor reading function
         app.publish('sensors/temperature', str(value))
         time.sleep(10)
-except KeyboardInterrupt:
-    pass
-finally:
-    app.loop_stop()
+
+if __name__ == '__main__':
+    app.run_forever()
 ```
+
+Pass arguments that should be forwarded to the function:
+
+```python
+@app.thread('sensors/temperature', interval=10)
+def poll_sensor(topic, interval=5):
+    while True:
+        app.publish(topic, str(read_sensor()))
+        time.sleep(interval)
+```
+
+If you need the main thread for your own work instead, use `loop_start()` / `loop_stop()` directly — see the [API reference](api-reference.md).
 
 ---
 

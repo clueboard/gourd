@@ -58,6 +58,33 @@ def handle_sensor(message):
 
 ---
 
+## `Gourd.thread(*args, **kwargs)`
+
+A decorator factory that registers a function to be started in a background thread when the app runs. Any arguments are passed to the function when the thread starts. Threads run as daemons.
+
+```python
+@app.thread()
+def poll_sensor():
+    while True:
+        value = read_sensor()
+        app.publish('sensors/temperature', str(value))
+        time.sleep(10)
+```
+
+Pass arguments that should be forwarded to the function:
+
+```python
+@app.thread('sensors/temperature', interval=10)
+def poll_sensor(topic, interval=5):
+    while True:
+        app.publish(topic, str(read_sensor()))
+        time.sleep(interval)
+```
+
+Threads are started when `run_forever()` or `loop_start()` is called — not at decoration time. This means you can safely use `@app.thread()` at module level without worrying about when the MQTT connection is established.
+
+---
+
 ## `Gourd.publish(topic, payload=None, *, qos=None, **kwargs)`
 
 Publishes a message to the MQTT broker.

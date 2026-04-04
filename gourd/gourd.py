@@ -2,6 +2,7 @@ import atexit
 import json
 import logging
 import re
+import threading
 from threading import Lock
 from os import environ
 from socket import gethostname
@@ -52,6 +53,7 @@ class Gourd:
         self.mqtt_topics = {}
         self.timeout = timeout
         self.lock = Lock()
+        self.thread_funcs = []
 
         # Setup the status topic
         self.status_enabled = status_enabled
@@ -123,6 +125,35 @@ class Gourd:
 
         return inner_function
 
+    def thread(self, *args, **kwargs):
+        """Decorator factory that registers a function to be run in a background thread.
+
+        Any arguments are passed to the function when the thread starts. Threads run as daemons.
+
+        Usage::
+
+            @app.thread()
+            def poll_sensor():
+                while True:
+                    app.publish('sensors/temp', str(read_sensor()))
+                    time.sleep(10)
+
+            @app.thread(some_arg, key='value')
+            def worker(arg, key=None):
+                ...
+        """
+        def decorator(func):
+            if func not in (entry[0] for entry in self.thread_funcs):
+                self.thread_funcs.append((func, args, kwargs))
+            return func
+        return decorator
+
+    def _start_threads(self):
+        """Start all registered thread functions."""
+        for func, args, kwargs in self.thread_funcs:
+            t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+            t.start()
+
     def do_subscribe(self):
         """Subscribe to our topics.
         """
@@ -174,6 +205,7 @@ class Gourd:
         """
         if not self.mqtt.is_connected():
             self.connect()
+        self._start_threads()
         return self.mqtt.loop_start()
 
     def loop_stop(self):
@@ -186,6 +218,7 @@ class Gourd:
         """
         try:
             self.connect()
+            self._start_threads()
             self.mqtt.loop_forever()
         except KeyboardInterrupt:
             self.log.info('User interrupted with ^C...')
