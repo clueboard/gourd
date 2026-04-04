@@ -3,7 +3,6 @@ import json
 import logging
 import re
 import threading
-from threading import Lock
 from os import environ
 from socket import gethostname
 
@@ -52,7 +51,6 @@ class Gourd:
         self.qos = qos
         self.mqtt_topics = {}
         self.timeout = timeout
-        self.lock = Lock()
         self.thread_funcs = []
 
         # Setup the status topic
@@ -91,7 +89,7 @@ class Gourd:
         # Setup MQTT logging
         self.mqtt_log_handler = None
         if log_mqtt:
-            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False, lock=self.lock)
+            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False)
             self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
             self.log.addHandler(self.mqtt_log_handler)
 
