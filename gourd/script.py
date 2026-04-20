@@ -77,27 +77,8 @@ def _apply_overrides(cli, app):
         if app.mqtt_log_handler:
             app.mqtt_log_handler.qos = config.qos
 
-    if config.mqtt_username is not None or config.mqtt_password is not None:
-        username = config.mqtt_username if config.mqtt_username is not None else app.username
-        password = config.mqtt_password if config.mqtt_password is not None else getattr(app, 'password', None)
-        app.username = username
-        if config.mqtt_password is not None:
-            app.password = config.mqtt_password
-        app.mqtt.username_pw_set(username, password)
-
-    if config.log_mqtt is not None:
-        if config.log_mqtt and not app.mqtt_log_handler:
-            topic = config.log_mqtt_topic or f'{app.name}/{gethostname()}/debug'
-            app.mqtt_log_handler = MQTTLogHandler(mqtt_client=app.mqtt, topic=topic, qos=app.qos, retain=False)
-            app.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
-            app.log.addHandler(app.mqtt_log_handler)
-        elif not config.log_mqtt and app.mqtt_log_handler:
-            app.log.removeHandler(app.mqtt_log_handler)
-            app.mqtt_log_handler.close()
-            app.mqtt_log_handler = None
-
-    if config.log_mqtt_topic is not None and app.mqtt_log_handler:
-        app.mqtt_log_handler.topic = config.log_mqtt_topic
+    _apply_credential_overrides(config, app)
+    _apply_log_mqtt_overrides(config, app)
 
     if config.status_enabled is not None:
         app.status_enabled = config.status_enabled
@@ -111,6 +92,34 @@ def _apply_overrides(cli, app):
 
     if config.max_queued_messages is not None:
         app.mqtt.max_queued_messages_set(config.max_queued_messages)
+
+
+def _apply_credential_overrides(config, app):
+    """Apply MQTT username/password overrides."""
+    if config.mqtt_username is not None or config.mqtt_password is not None:
+        username = config.mqtt_username if config.mqtt_username is not None else app.username
+        password = config.mqtt_password if config.mqtt_password is not None else getattr(app, 'password', None)
+        app.username = username
+        if config.mqtt_password is not None:
+            app.password = config.mqtt_password
+        app.mqtt.username_pw_set(username, password)
+
+
+def _apply_log_mqtt_overrides(config, app):
+    """Apply MQTT logging overrides."""
+    if config.log_mqtt is not None:
+        if config.log_mqtt and not app.mqtt_log_handler:
+            topic = config.log_mqtt_topic or f'{app.name}/{gethostname()}/debug'
+            app.mqtt_log_handler = MQTTLogHandler(mqtt_client=app.mqtt, topic=topic, qos=app.qos, retain=False)
+            app.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
+            app.log.addHandler(app.mqtt_log_handler)
+        elif not config.log_mqtt and app.mqtt_log_handler:
+            app.log.removeHandler(app.mqtt_log_handler)
+            app.mqtt_log_handler.close()
+            app.mqtt_log_handler = None
+
+    if config.log_mqtt_topic is not None and app.mqtt_log_handler:
+        app.mqtt_log_handler.topic = config.log_mqtt_topic
 
 
 if __name__ == '__main__':
