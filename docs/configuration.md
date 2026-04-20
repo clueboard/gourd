@@ -31,7 +31,7 @@ Constructor defaults can be overridden at runtime via command-line flags, enviro
 
 ## Naming Convention
 
-CLI flags, environment variables, and config file tokens share the same naming scheme. Given a CLI flag you can derive the other forms:
+CLI flags, environment variables, and config file tokens share the same naming scheme. Given a CLI flag, you can derive the other forms:
 
 - **CLI flag**: `--mqtt-host 127.0.0.1`
 - **Environment variable**: strip the leading `--`, replace `-` with `_`, uppercase → `MQTT_HOST=127.0.0.1`
