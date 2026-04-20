@@ -196,4 +196,5 @@ a PR and we'll review it.
 
 Please follow this checklist before submitting a PR:
 
+* [ ] Follow the guidelines in <CODESTYLE.md>
 * [ ] Format your code: `yapf -i -r .`
