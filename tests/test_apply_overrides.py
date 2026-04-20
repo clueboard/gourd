@@ -4,11 +4,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-def make_gourd(status_enabled=False, log_mqtt=False):
+def make_gourd(status_enabled=False, log_mqtt=False, **kwargs):
     with patch('gourd.gourd.paho.mqtt.client.Client'):
         with patch('gourd.gourd.atexit.register'):
             from gourd import Gourd
-            return Gourd(app_name='test', log_mqtt=log_mqtt, status_enabled=status_enabled)
+            return Gourd(app_name='test', log_mqtt=log_mqtt, status_enabled=status_enabled, **kwargs)
 
 
 def make_config(**overrides):
@@ -200,12 +200,13 @@ def test_status_disable_clears_will():
 def test_log_mqtt_enable_creates_handler():
     from gourd.script import _apply_log_mqtt_overrides
 
-    app = make_gourd(log_mqtt=False)
+    app = make_gourd(log_mqtt=False, mqtt_topic='custom/base')
     assert app.mqtt_log_handler is None
     config = make_config(log_mqtt=True)
 
     _apply_log_mqtt_overrides(config, app)
     assert app.mqtt_log_handler is not None
+    assert app.mqtt_log_handler.topic == 'custom/base/debug'
 
 
 def test_log_mqtt_disable_removes_handler():

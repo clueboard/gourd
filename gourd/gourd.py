@@ -15,7 +15,8 @@ class Gourd:
     """An opinionated framework for writing MQTT applications.
 
     Args:
-        app_name                    The name of your application (typically used as the base of your mqtt topic(s))
+        app_name                    The name of your application
+        mqtt_topic=None             Base MQTT topic for derived topics (When None it's f'{app_name}/{gethostname()}')
         mqtt_host='localhost'       The MQTT server to connect to
         mqtt_port=1883              The port number to connect to
         username=''                 The username to connect to the MQTT server with
@@ -23,16 +24,17 @@ class Gourd:
         qos=1                       Default QOS Level for messages
         timeout=30                  The timeout for the MQTT connection
         log_mqtt=True               Set to false to disable mqtt logging
-        log_topic=None              The MQTT topic to send debug logs to (When None it's f'{app_name}/{gethostname()}/debug')
+        mqtt_log_topic=None         The MQTT topic to send debug logs to (When None it's f'{mqtt_topic}/debug')
+        log_topic=None              Deprecated alias for mqtt_log_topic
         status_enabled=True         Set to false to disable the status topic
-        status_topic=None           The topic to publish application status (ON/OFF) to (When None it's f'{app_name}/{gethostname()}/status')
+        status_topic=None           The topic to publish application status (ON/OFF) to (When None it's f'{mqtt_topic}/status')
         status_online='ON'          The payload to publish to status_topic when we are running
         status_offline='OFF'        The payload to publish to status_topic when we are not running
         max_inflight_messages=20    How many messages can be in-flight. See Paho MQTT documentation for more details.
         max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
         message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
+    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
         if message_retry_sec is not None:
             import warnings
             warnings.warn(
@@ -49,6 +51,7 @@ class Gourd:
         self.mqtt_topics = {}
         self.timeout = timeout
         self.thread_funcs = []
+        self.mqtt_topic = mqtt_topic or f'{app_name}/{gethostname()}'
 
         # Setup the status topic
         self.status_enabled = status_enabled
@@ -57,14 +60,16 @@ class Gourd:
         self.status_offline = status_offline
 
         if not self.status_topic:
-            self.status_topic = f'{app_name}/{gethostname()}/status'
+            self.status_topic = f'{self.mqtt_topic}/status'
 
         # Setup logging
         self.log = logging.getLogger(__name__)
         self.log.addHandler(logging.NullHandler())
 
-        if not log_topic:
-            log_topic = f'{app_name}/{gethostname()}/debug'
+        if mqtt_log_topic is None:
+            mqtt_log_topic = log_topic
+        if mqtt_log_topic is None:
+            mqtt_log_topic = f'{self.mqtt_topic}/debug'
 
         # Setup MQTT
         self.mqtt = paho.mqtt.client.Client(callback_api_version=CallbackAPIVersion.VERSION2)
@@ -86,7 +91,7 @@ class Gourd:
         # Setup MQTT logging
         self.mqtt_log_handler = None
         if log_mqtt:
-            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=log_topic, qos=qos, retain=False)
+            self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=mqtt_log_topic, qos=qos, retain=False)
             self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
             self.log.addHandler(self.mqtt_log_handler)
 

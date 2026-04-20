@@ -63,11 +63,11 @@ Gourd does three things for you without any configuration:
 
 **Status topic (Last Will and Testament)**
 
-When your app connects, Gourd publishes `ON` to `{app_name}/{hostname}/status` with `retain=True`. If your app exits cleanly, it publishes `OFF`. If your app crashes or loses its connection, the broker delivers the LWT `OFF` payload automatically.
+When your app connects, Gourd publishes `ON` to `{mqtt_topic}/status` with `retain=True` (where `mqtt_topic` defaults to `{app_name}/{hostname}`). If your app exits cleanly, it publishes `OFF`. If your app crashes or loses its connection, the broker delivers the LWT `OFF` payload automatically.
 
 **Debug log topic**
 
-All messages sent via `app.log` are published to `{app_name}/{hostname}/debug` in addition to the console. This lets you monitor your app's logs in real time from any MQTT client.
+All messages sent via `app.log` are published to `{mqtt_topic}/debug` in addition to the console. This lets you monitor your app's logs in real time from any MQTT client.
 
 **JSON payload parsing**
 

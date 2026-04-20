@@ -1,4 +1,5 @@
 """Unit tests for Gourd class methods."""
+from socket import gethostname
 from unittest.mock import MagicMock, patch
 
 
@@ -8,11 +9,52 @@ def make_reason_code(failure=False):
     return rc
 
 
-def make_gourd(status_enabled=False):
+def make_gourd(status_enabled=False, log_mqtt=False, **kwargs):
     with patch('gourd.gourd.paho.mqtt.client.Client'):
         with patch('gourd.gourd.atexit.register'):
             from gourd import Gourd
-            return Gourd(app_name='test', log_mqtt=False, status_enabled=status_enabled)
+            return Gourd(app_name='test', log_mqtt=log_mqtt, status_enabled=status_enabled, **kwargs)
+
+
+def test_default_topic_derivation():
+    app = make_gourd(status_enabled=True, log_mqtt=True)
+    assert app.mqtt_topic == f'test/{gethostname()}'
+    assert app.status_topic == f'{app.mqtt_topic}/status'
+    assert app.mqtt_log_handler.topic == f'{app.mqtt_topic}/debug'
+
+
+def test_custom_mqtt_topic_derivation():
+    app = make_gourd(status_enabled=True, log_mqtt=True, mqtt_topic='custom/base')
+    assert app.mqtt_topic == 'custom/base'
+    assert app.status_topic == 'custom/base/status'
+    assert app.mqtt_log_handler.topic == 'custom/base/debug'
+
+
+def test_topic_derivation_with_features_disabled():
+    app = make_gourd(status_enabled=False, log_mqtt=False, mqtt_topic='custom/base')
+    assert app.mqtt_topic == 'custom/base'
+    assert app.status_topic == 'custom/base/status'
+    assert app.mqtt_log_handler is None
+
+
+def test_mqtt_log_topic_overrides_default():
+    app = make_gourd(log_mqtt=True, mqtt_topic='custom/base', mqtt_log_topic='custom/debug')
+    assert app.mqtt_log_handler.topic == 'custom/debug'
+
+
+def test_log_topic_alias_sets_mqtt_log_topic():
+    app = make_gourd(log_mqtt=True, mqtt_topic='custom/base', log_topic='legacy/debug')
+    assert app.mqtt_log_handler.topic == 'legacy/debug'
+
+
+def test_mqtt_log_topic_takes_precedence_over_log_topic():
+    app = make_gourd(
+        log_mqtt=True,
+        mqtt_topic='custom/base',
+        mqtt_log_topic='custom/debug',
+        log_topic='legacy/debug',
+    )
+    assert app.mqtt_log_handler.topic == 'custom/debug'
 
 
 # --- subscribe ---

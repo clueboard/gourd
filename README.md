@@ -79,7 +79,7 @@ To create your app you'll need an instance of the Gourd class. Unless your MQTT 
 
 ```python
 class Gourd:
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
+    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
 ```
 
 #### Recommended arguments
@@ -109,17 +109,23 @@ These are the arguments that only need to be set if the default behavior does no
 * timeout
     * Default: `30`
     * The timeout for the MQTT connection
+* mqtt_topic
+    * Default: Generated from app_name and hostname: `{app_name}/{gethostname()}`
+    * The base MQTT topic used for derived topics
 * log_mqtt
     * Default: `True`
     * Set to false to disable mqtt logging
-* log_topic
-    * Default: Generated based on app_name and hostname: `{app_name}/{gethostname()}/debug`
+* mqtt_log_topic
+    * Default: Generated from mqtt_topic: `{mqtt_topic}/debug`
     * The MQTT topic to send debug logs to
+* log_topic
+    * Default: `None`
+    * Deprecated alias for `mqtt_log_topic`
 * status_enabled
     * Default: `True`
     * Set to false to disable the status topic
 * status_topic
-    * Default: Generated based app_name and hostname: `{app_name}/{gethostname()}/status`
+    * Default: Generated from mqtt_topic: `{mqtt_topic}/status`
     * The topic to publish application status (ON/OFF) to
 * status_online
     * Default: `ON`
