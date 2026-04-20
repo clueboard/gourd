@@ -22,37 +22,66 @@ app = Gourd(
 
 ---
 
-## Environment Variables
+## Runtime Configuration
 
-When you run your app with the `gourd` CLI, connection settings can be configured via environment variables in addition to constructor arguments and command-line flags. Gourd uses [MILC](https://milc.clueboard.co/) to provide a unified search order:
+When you run your app with the `gourd` CLI, settings can be configured via command-line flags, environment variables, or a config file. Gourd uses [MILC](https://milc.clueboard.co/) to provide a unified search order:
 
 1. **Command-line argument** (`--mqtt-host broker.local`)
 2. **Environment variable** (`MQTT_HOST=broker.local`)
-3. **Constructor default** (the value passed in your Python code)
+3. **Config file** (INI-style under the `[general]` section)
+4. **Constructor default** (the value passed in your Python code)
 
-Environment variables use no prefix — they map directly from the CLI flag name:
+### Naming convention
+
+CLI flags, environment variables, and config file tokens all share the same naming scheme. Given a CLI flag, you can derive the other forms:
+
+- **CLI flag**: `--mqtt-host`
+- **Environment variable**: strip the leading `--`, replace `-` with `_`, uppercase → `MQTT_HOST`
+- **Config file token**: strip the leading `--`, replace `-` with `_` → `mqtt_host`
+
+### Config file
+
+Gourd uses MILC's config file support. The file format is [ConfigParser](https://docs.python.org/3/library/configparser.html) INI style. Settings go under the `[general]` section:
+
+```ini
+[general]
+mqtt_host = broker.local
+mqtt_port = 1883
+mqtt_username = mqtt
+mqtt_password = secret
+```
+
+Use the `--config-file` argument to specify a config file path:
+
+```shell
+gourd --config-file /etc/gourd/my_app.ini my_app:app
+```
+
+### Available settings
 
 | Setting | CLI Flag | Environment Variable |
 |---|---|---|
 | MQTT host | `--mqtt-host` | `MQTT_HOST` |
 | MQTT port | `--mqtt-port` | `MQTT_PORT` |
-| Username | `--mqtt-username` | `MQTT_USERNAME` |
-| Password | `--mqtt-password` | `MQTT_PASSWORD` |
-| QoS | `--qos` | `QOS` |
+| MQTT Username | `--mqtt-username` | `MQTT_USERNAME` |
+| MQTT Password | `--mqtt-password` | `MQTT_PASSWORD` |
+| [MQTT QoS](https://eclipse.dev/paho/files/mqttdoc/MQTTClient/html/qos.html) | `--qos` | `QOS` |
 | Timeout | `--timeout` | `TIMEOUT` |
-| MQTT logging | `--log-mqtt` / `--no-log-mqtt` | `LOG_MQTT` |
-| Log topic | `--log-mqtt-topic` | `LOG_MQTT_TOPIC` |
-| Status topic | `--status-enabled` / `--no-status-enabled` | `STATUS_ENABLED` |
-| Max in-flight | `--max-inflight-messages` | `MAX_INFLIGHT_MESSAGES` |
-| Max queued | `--max-queued-messages` | `MAX_QUEUED_MESSAGES` |
+| Enable logging to MQTT | `--log-mqtt` / `--no-log-mqtt` | `LOG_MQTT` |
+| The topic to log to | `--log-mqtt-topic` | `LOG_MQTT_TOPIC` |
+| [LWT](https://eclipse.dev/paho/files/mqttdoc/MQTTClient/html/struct_m_q_t_t_client__will_options.html) Status topic | `--status-enabled` / `--no-status-enabled` | `STATUS_ENABLED` |
+| Max count of in-flight messages | `--max-inflight-messages` | `MAX_INFLIGHT_MESSAGES` |
+| Max count of queued messages | `--max-queued-messages` | `MAX_QUEUED_MESSAGES` |
 
-For example, to run your app against a different broker without changing code:
+### Examples
+
+Run your app against a different broker using an environment variable:
 
 ```shell
 MQTT_HOST=broker.local gourd my_app:app
 ```
 
-Or use command-line flags (these override env vars):
+Or use command-line flags (these override env vars and config file):
 
 ```shell
 gourd --mqtt-host broker.local --mqtt-username mqtt --mqtt-password secret my_app:app

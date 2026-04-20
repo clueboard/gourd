@@ -63,6 +63,8 @@ def _apply_overrides(cli, app):
     """
     config = cli.config.general
 
+    _apply_credential_overrides(cli, config, app)
+
     if config.mqtt_host is not None:
         app.mqtt_host = config.mqtt_host
 
@@ -77,9 +79,6 @@ def _apply_overrides(cli, app):
         if app.mqtt_log_handler:
             app.mqtt_log_handler.qos = config.qos
 
-    _apply_credential_overrides(config, app)
-    _apply_log_mqtt_overrides(config, app)
-
     if config.status_enabled is not None:
         app.status_enabled = config.status_enabled
         if app.status_enabled:
@@ -93,20 +92,23 @@ def _apply_overrides(cli, app):
     if config.max_queued_messages is not None:
         app.mqtt.max_queued_messages_set(config.max_queued_messages)
 
+    _apply_log_mqtt_overrides(config, app)
 
-def _apply_credential_overrides(config, app):
+
+def _apply_credential_overrides(cli, config, app):
     """Apply MQTT username/password overrides.
 
     Both --mqtt-username and --mqtt-password must be provided together.
     """
-    has_username = config.mqtt_username is not None
-    has_password = config.mqtt_password is not None
-
-    if has_username != has_password:
+    if config.mqtt_username is not None and config.mqtt_password is None:
         cli.log.error('Both --mqtt-username and --mqtt-password must be provided together.')
         sys.exit(2)
 
-    if has_username and has_password:
+    if config.mqtt_password is not None and config.mqtt_username is None:
+        cli.log.error('Both --mqtt-username and --mqtt-password must be provided together.')
+        sys.exit(2)
+
+    if config.mqtt_username is not None and config.mqtt_password is not None:
         app.username = config.mqtt_username
         app.mqtt.username_pw_set(config.mqtt_username, config.mqtt_password)
 
