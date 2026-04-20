@@ -12,8 +12,8 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 
 @cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP. (Env: MQTT_HOST)')
 @cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port. (Env: MQTT_PORT)')
-@cli.argument('--username', default=None, help='Username for MQTT broker authentication. (Env: USERNAME)')
-@cli.argument('--password', default=None, help='Password for MQTT broker authentication. (Env: PASSWORD)')
+@cli.argument('--mqtt-username', default=None, help='Username for MQTT broker authentication. (Env: MQTT_USERNAME)')
+@cli.argument('--mqtt-password', default=None, help='Password for MQTT broker authentication. (Env: MQTT_PASSWORD)')
 @cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2). (Env: QOS)')
 @cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds. (Env: TIMEOUT)')
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
@@ -56,9 +56,9 @@ def main(cli):
     if cli.args.qos is not None:
         app.qos = cli.args.qos
 
-    if cli.args.username is not None or cli.args.password is not None:
-        username = cli.args.username if cli.args.username is not None else app.username
-        password = cli.args.password
+    if cli.args.mqtt_username is not None or cli.args.mqtt_password is not None:
+        username = cli.args.mqtt_username if cli.args.mqtt_username is not None else app.username
+        password = cli.args.mqtt_password
         app.username = username
         app.mqtt.username_pw_set(username, password)
 

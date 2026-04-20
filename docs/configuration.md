@@ -36,8 +36,8 @@ Environment variables use no prefix — they map directly from the CLI flag name
 |---|---|---|
 | MQTT host | `--mqtt-host` | `MQTT_HOST` |
 | MQTT port | `--mqtt-port` | `MQTT_PORT` |
-| Username | `--username` | `USERNAME` |
-| Password | `--password` | `PASSWORD` |
+| Username | `--mqtt-username` | `MQTT_USERNAME` |
+| Password | `--mqtt-password` | `MQTT_PASSWORD` |
 | QoS | `--qos` | `QOS` |
 | Timeout | `--timeout` | `TIMEOUT` |
 
@@ -50,7 +50,7 @@ MQTT_HOST=broker.local gourd my_app:app
 Or use command-line flags (these override env vars):
 
 ```shell
-gourd --mqtt-host broker.local --username mqtt --password secret my_app:app
+gourd --mqtt-host broker.local --mqtt-username mqtt --mqtt-password secret my_app:app
 ```
 
 ---
