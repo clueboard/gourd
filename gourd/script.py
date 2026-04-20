@@ -7,9 +7,15 @@ from milc import cli
 
 __VERSION__ = '1.0.2'
 
-cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard')
+cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_prefix='GOURD')
 
 
+@cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP. (Env: GOURD_MQTT_HOST)')
+@cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port. (Env: GOURD_MQTT_PORT)')
+@cli.argument('--username', default=None, help='Username for MQTT broker authentication. (Env: GOURD_USERNAME)')
+@cli.argument('--password', default=None, help='Password for MQTT broker authentication. (Env: GOURD_PASSWORD)')
+@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2). (Env: GOURD_QOS)')
+@cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds. (Env: GOURD_TIMEOUT)')
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
@@ -35,6 +41,26 @@ def main(cli):
     except AttributeError as e:
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
         exit(2)
+
+    # Apply CLI/env/config settings to the app before running.
+    # milc resolves settings with arg > env > config > default precedence.
+    if cli.args.mqtt_host is not None:
+        app.mqtt_host = cli.args.mqtt_host
+
+    if cli.args.mqtt_port is not None:
+        app.mqtt_port = cli.args.mqtt_port
+
+    if cli.args.timeout is not None:
+        app.timeout = cli.args.timeout
+
+    if cli.args.qos is not None:
+        app.qos = cli.args.qos
+
+    if cli.args.username is not None or cli.args.password is not None:
+        username = cli.args.username if cli.args.username is not None else app.username
+        password = cli.args.password if cli.args.password is not None else ''
+        app.username = username
+        app.mqtt.username_pw_set(username, password)
 
     app.run_forever()
 

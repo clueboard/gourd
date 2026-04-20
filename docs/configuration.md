@@ -22,6 +22,38 @@ app = Gourd(
 
 ---
 
+## Environment Variables
+
+When you run your app with the `gourd` CLI, connection settings can be configured via environment variables in addition to constructor arguments and command-line flags. Gourd uses [MILC](https://milc.clueboard.co/) to provide a unified search order:
+
+1. **Command-line argument** (`--mqtt-host broker.local`)
+2. **Environment variable** (`GOURD_MQTT_HOST=broker.local`)
+3. **Config file** (managed by MILC)
+4. **Constructor default** (the value passed in your Python code)
+
+| Setting | CLI Flag | Environment Variable |
+|---|---|---|
+| MQTT host | `--mqtt-host` | `GOURD_MQTT_HOST` |
+| MQTT port | `--mqtt-port` | `GOURD_MQTT_PORT` |
+| Username | `--username` | `GOURD_USERNAME` |
+| Password | `--password` | `GOURD_PASSWORD` |
+| QoS | `--qos` | `GOURD_QOS` |
+| Timeout | `--timeout` | `GOURD_TIMEOUT` |
+
+For example, to run your app against a different broker without changing code:
+
+```shell
+GOURD_MQTT_HOST=broker.local gourd my_app:app
+```
+
+Or use command-line flags:
+
+```shell
+gourd --mqtt-host broker.local --username mqtt --password secret my_app:app
+```
+
+---
+
 ## Connection Settings
 
 | Argument | Default | Description |

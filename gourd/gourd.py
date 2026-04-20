@@ -3,7 +3,6 @@ import json
 import logging
 import re
 import threading
-from os import environ
 from socket import gethostname
 
 import paho.mqtt.client
