@@ -10,12 +10,17 @@ __VERSION__ = '1.0.2'
 cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_prefix='')
 
 
-@cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP. (Env: MQTT_HOST)')
-@cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port. (Env: MQTT_PORT)')
-@cli.argument('--mqtt-username', default=None, help='Username for MQTT broker authentication. (Env: MQTT_USERNAME)')
-@cli.argument('--mqtt-password', default=None, help='Password for MQTT broker authentication. (Env: MQTT_PASSWORD)')
-@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2). (Env: QOS)')
-@cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds. (Env: TIMEOUT)')
+@cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP.')
+@cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port.')
+@cli.argument('--mqtt-username', default=None, help='Username for MQTT broker authentication.')
+@cli.argument('--mqtt-password', default=None, help='Password for MQTT broker authentication.')
+@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2).')
+@cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds.')
+@cli.argument('--log-mqtt', action='store_boolean', default=None, help='Enable or disable MQTT logging.')
+@cli.argument('--log-mqtt-topic', default=None, help='The MQTT topic to publish log messages to.')
+@cli.argument('--status-enabled', action='store_boolean', default=None, help='Enable or disable the status topic.')
+@cli.argument('--max-inflight-messages', default=None, type=int, help='Maximum number of in-flight QoS > 0 messages.')
+@cli.argument('--max-queued-messages', default=None, type=int, help='Maximum number of queued messages (0 = unlimited).')
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
@@ -42,27 +47,52 @@ def main(cli):
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
         exit(2)
 
-    # Apply CLI/env settings to the app before running.
-    # milc resolves settings with arg > env > default precedence.
-    if cli.args.mqtt_host is not None:
-        app.mqtt_host = cli.args.mqtt_host
+    _apply_overrides(cli, app)
+    app.run_forever()
 
-    if cli.args.mqtt_port is not None:
-        app.mqtt_port = cli.args.mqtt_port
 
-    if cli.args.timeout is not None:
-        app.timeout = cli.args.timeout
+def _apply_overrides(cli, app):
+    """Apply CLI/env overrides using milc's resolved config.
 
-    if cli.args.qos is not None:
-        app.qos = cli.args.qos
+    milc handles arg > env > default precedence via cli.config.general.
+    Only values explicitly set (not None) override the app's constructor defaults.
+    """
+    config = cli.config.general
 
-    if cli.args.mqtt_username is not None or cli.args.mqtt_password is not None:
-        username = cli.args.mqtt_username if cli.args.mqtt_username is not None else app.username
-        password = cli.args.mqtt_password
+    if config.mqtt_host is not None:
+        app.mqtt_host = config.mqtt_host
+
+    if config.mqtt_port is not None:
+        app.mqtt_port = config.mqtt_port
+
+    if config.timeout is not None:
+        app.timeout = config.timeout
+
+    if config.qos is not None:
+        app.qos = config.qos
+
+    if config.mqtt_username is not None or config.mqtt_password is not None:
+        username = config.mqtt_username if config.mqtt_username is not None else app.username
+        password = config.mqtt_password
         app.username = username
         app.mqtt.username_pw_set(username, password)
 
-    app.run_forever()
+    if config.log_mqtt is not None:
+        if not config.log_mqtt and app.mqtt_log_handler:
+            app.log.removeHandler(app.mqtt_log_handler)
+            app.mqtt_log_handler = None
+
+    if config.log_mqtt_topic is not None and app.mqtt_log_handler:
+        app.mqtt_log_handler.topic = config.log_mqtt_topic
+
+    if config.status_enabled is not None:
+        app.status_enabled = config.status_enabled
+
+    if config.max_inflight_messages is not None:
+        app.mqtt.max_inflight_messages_set(config.max_inflight_messages)
+
+    if config.max_queued_messages is not None:
+        app.mqtt.max_queued_messages_set(config.max_queued_messages)
 
 
 if __name__ == '__main__':

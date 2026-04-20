@@ -40,6 +40,11 @@ Environment variables use no prefix — they map directly from the CLI flag name
 | Password | `--mqtt-password` | `MQTT_PASSWORD` |
 | QoS | `--qos` | `QOS` |
 | Timeout | `--timeout` | `TIMEOUT` |
+| MQTT logging | `--log-mqtt` / `--no-log-mqtt` | `LOG_MQTT` |
+| Log topic | `--log-mqtt-topic` | `LOG_MQTT_TOPIC` |
+| Status topic | `--status-enabled` / `--no-status-enabled` | `STATUS_ENABLED` |
+| Max in-flight | `--max-inflight-messages` | `MAX_INFLIGHT_MESSAGES` |
+| Max queued | `--max-queued-messages` | `MAX_QUEUED_MESSAGES` |
 
 For example, to run your app against a different broker without changing code:
 
