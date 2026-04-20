@@ -64,6 +64,7 @@ def _apply_overrides(cli, app):
     config = cli.config.general
 
     _apply_credential_overrides(cli, config, app)
+    _apply_log_mqtt_overrides(config, app)
 
     if config.mqtt_host is not None:
         app.mqtt_host = config.mqtt_host
@@ -91,8 +92,6 @@ def _apply_overrides(cli, app):
 
     if config.max_queued_messages is not None:
         app.mqtt.max_queued_messages_set(config.max_queued_messages)
-
-    _apply_log_mqtt_overrides(config, app)
 
 
 def _apply_credential_overrides(cli, config, app):

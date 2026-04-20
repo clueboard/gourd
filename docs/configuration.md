@@ -35,9 +35,15 @@ When you run your app with the `gourd` CLI, settings can be configured via comma
 
 CLI flags, environment variables, and config file tokens all share the same naming scheme. Given a CLI flag, you can derive the other forms:
 
-- **CLI flag**: `--mqtt-host`
-- **Environment variable**: strip the leading `--`, replace `-` with `_`, uppercase → `MQTT_HOST`
-- **Config file token**: strip the leading `--`, replace `-` with `_` → `mqtt_host`
+- **CLI flag**: `--mqtt-host 127.0.0.1`
+- **Environment variable**: strip the leading `--`, replace `-` with `_`, uppercase → `MQTT_HOST=127.0.0.1`
+- **Config file token**: strip the leading `--`, replace `-` with `_`, place in the `general` section → 
+    - in code: `cli.config.general.mqtt_host`
+    - in config file:  
+```
+[general]
+mqtt_host: 127.0.0.1
+```
 
 ### Config file
 
