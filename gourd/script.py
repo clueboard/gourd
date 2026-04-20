@@ -7,15 +7,15 @@ from milc import cli
 
 __VERSION__ = '1.0.2'
 
-cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard')
+cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_prefix='')
 
 
-@cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP.')
-@cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port.')
-@cli.argument('--username', default=None, help='Username for MQTT broker authentication.')
-@cli.argument('--password', default=None, help='Password for MQTT broker authentication.')
-@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2).')
-@cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds.')
+@cli.argument('--mqtt-host', default=None, help='The MQTT broker hostname or IP. (Env: MQTT_HOST)')
+@cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port. (Env: MQTT_PORT)')
+@cli.argument('--username', default=None, help='Username for MQTT broker authentication. (Env: USERNAME)')
+@cli.argument('--password', default=None, help='Password for MQTT broker authentication. (Env: PASSWORD)')
+@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2). (Env: QOS)')
+@cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds. (Env: TIMEOUT)')
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
@@ -42,9 +42,8 @@ def main(cli):
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
         exit(2)
 
-    # Apply CLI flag overrides to the app.
-    # Env var overrides are already applied by the Gourd constructor.
-    # CLI flags take the highest precedence.
+    # Apply CLI/env settings to the app before running.
+    # milc resolves settings with arg > env > default precedence.
     if cli.args.mqtt_host is not None:
         app.mqtt_host = cli.args.mqtt_host
 

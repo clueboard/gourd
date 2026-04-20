@@ -34,20 +34,8 @@ class Gourd:
         max_inflight_messages=20    How many messages can be in-flight. See Paho MQTT documentation for more details.
         max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
         message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
-        env_prefix=''               Prefix for environment variables. '' (default) means no prefix (e.g. MQTT_HOST).
-                                    Set to a string like 'MY_APP' for prefixed vars (e.g. MY_APP_MQTT_HOST).
-                                    Set to None or False to disable env var support.
     """
-    _env_settings = {
-        'MQTT_HOST': ('mqtt_host', str),
-        'MQTT_PORT': ('mqtt_port', int),
-        'USERNAME': ('username', str),
-        'PASSWORD': ('password', str),
-        'QOS': ('qos', int),
-        'TIMEOUT': ('timeout', int),
-    }
-
-    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None, env_prefix=''):
+    def __init__(self, app_name, *, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
         if message_retry_sec is not None:
             import warnings
             warnings.warn(
@@ -57,26 +45,6 @@ class Gourd:
             )
 
         self.name = app_name
-
-        # Determine the environment variable prefix.
-        # '' (default): no prefix, env vars are MQTT_HOST, USERNAME, etc.
-        # A non-empty string: prefix env vars, e.g. 'MY_APP' -> MY_APP_MQTT_HOST
-        # None/False: disable env var support entirely
-        if env_prefix is None or env_prefix is False:
-            self.env_prefix = None
-        else:
-            self.env_prefix = str(env_prefix)
-
-        # Apply environment variable overrides.
-        if self.env_prefix is not None:
-            env_overrides = self._env_overrides()
-            mqtt_host = env_overrides.get('mqtt_host', mqtt_host)
-            mqtt_port = env_overrides.get('mqtt_port', mqtt_port)
-            username = env_overrides.get('username', username)
-            password = env_overrides.get('password', password)
-            qos = env_overrides.get('qos', qos)
-            timeout = env_overrides.get('timeout', timeout)
-
         self.mqtt_host = mqtt_host
         self.mqtt_port = mqtt_port
         self.username = username
@@ -215,26 +183,6 @@ class Gourd:
             self.mqtt.publish(self.status_topic, payload=self.status_offline, qos=1, retain=True)
             self.mqtt.loop(timeout=0.5)  # Give the publish a chance to transmit before disconnecting
         self.mqtt.disconnect()
-
-    def _env_overrides(self):
-        """Read environment variables and return a dict of overrides.
-
-        When env_prefix is empty, env vars are MQTT_HOST, USERNAME, etc.
-        When env_prefix is set (e.g. 'MY_APP'), env vars are MY_APP_MQTT_HOST, etc.
-        """
-        prefix = self.env_prefix + '_' if self.env_prefix else ''
-        overrides = {}
-
-        for env_suffix, (attr_name, type_fn) in self._env_settings.items():
-            env_key = prefix + env_suffix
-            env_value = environ.get(env_key)
-            if env_value is not None:
-                try:
-                    overrides[attr_name] = type_fn(env_value)
-                except (ValueError, TypeError):
-                    logging.getLogger(__name__).warning('Ignoring invalid value for %s: %r', env_key, env_value)
-
-        return overrides
 
     def on_message(self, client, userdata, msg):
         """Called when paho has a message from the queue to process.

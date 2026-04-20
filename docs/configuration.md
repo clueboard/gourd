@@ -24,35 +24,22 @@ app = Gourd(
 
 ## Environment Variables
 
-Gourd reads environment variables at construction time, so settings work regardless of whether you use the `gourd` CLI or run your script directly with Python.
+When you run your app with the `gourd` CLI, connection settings can be configured via environment variables in addition to constructor arguments and command-line flags. Gourd uses [MILC](https://milc.clueboard.co/) to provide a unified search order:
 
-By default there is no prefix — env vars are simply `MQTT_HOST`, `USERNAME`, etc. You can add a prefix by passing `env_prefix` to the constructor:
-
-```python
-# No prefix (default): reads MQTT_HOST, USERNAME, etc.
-app = Gourd(app_name='my_app')
-
-# With prefix: reads MY_APP_MQTT_HOST, MY_APP_USERNAME, etc.
-app = Gourd(app_name='my_app', env_prefix='MY_APP')
-
-# Disable env var support entirely
-app = Gourd(app_name='my_app', env_prefix=None)
-```
-
-The search order for each setting (highest priority wins):
-
-1. **Command-line flag** (`gourd --mqtt-host broker.local my_app:app`)
+1. **Command-line argument** (`--mqtt-host broker.local`)
 2. **Environment variable** (`MQTT_HOST=broker.local`)
-3. **Constructor argument** (the value passed in your Python code)
+3. **Constructor default** (the value passed in your Python code)
 
-| Setting | Env Variable (no prefix) | Env Variable (prefix=`MY_APP`) |
+Environment variables use no prefix — they map directly from the CLI flag name:
+
+| Setting | CLI Flag | Environment Variable |
 |---|---|---|
-| MQTT host | `MQTT_HOST` | `MY_APP_MQTT_HOST` |
-| MQTT port | `MQTT_PORT` | `MY_APP_MQTT_PORT` |
-| Username | `USERNAME` | `MY_APP_USERNAME` |
-| Password | `PASSWORD` | `MY_APP_PASSWORD` |
-| QoS | `QOS` | `MY_APP_QOS` |
-| Timeout | `TIMEOUT` | `MY_APP_TIMEOUT` |
+| MQTT host | `--mqtt-host` | `MQTT_HOST` |
+| MQTT port | `--mqtt-port` | `MQTT_PORT` |
+| Username | `--username` | `USERNAME` |
+| Password | `--password` | `PASSWORD` |
+| QoS | `--qos` | `QOS` |
+| Timeout | `--timeout` | `TIMEOUT` |
 
 For example, to run your app against a different broker without changing code:
 
