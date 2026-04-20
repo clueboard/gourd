@@ -58,7 +58,7 @@ def main(cli):
 
     if cli.args.username is not None or cli.args.password is not None:
         username = cli.args.username if cli.args.username is not None else app.username
-        password = cli.args.password if cli.args.password is not None else ''
+        password = cli.args.password
         app.username = username
         app.mqtt.username_pw_set(username, password)
 
