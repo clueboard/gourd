@@ -1,9 +1,6 @@
 import atexit
-import json
 import logging
-import re
 import threading
-from os import environ
 from socket import gethostname
 
 import paho.mqtt.client
@@ -144,6 +141,7 @@ class Gourd:
             if func not in (entry[0] for entry in self.thread_funcs):
                 self.thread_funcs.append((func, args, kwargs))
             return func
+
         return decorator
 
     def _start_threads(self):

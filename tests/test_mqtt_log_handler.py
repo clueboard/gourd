@@ -1,7 +1,6 @@
 """Unit tests for gourd.mqtt_log_handler.MQTTLogHandler."""
 import logging
-from threading import Lock
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 from gourd.mqtt_log_handler import MQTTLogHandler
 
 
