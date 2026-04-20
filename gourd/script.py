@@ -58,8 +58,10 @@ def main(cli):
 def _apply_overrides(cli, app):
     """Apply CLI/env overrides using milc's resolved config.
 
-    milc handles arg > env > default precedence via cli.config.general.
-    Only values explicitly set (not None) override the app's constructor defaults.
+    milc resolves values in cli.config.general with arg > env > config file >
+    defaults/constructor precedence.
+    Only resolved values explicitly set (not None) override the app's
+    constructor defaults.
     """
     config = cli.config.general
 
