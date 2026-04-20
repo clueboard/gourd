@@ -74,11 +74,15 @@ def _apply_overrides(cli, app):
 
     if config.qos is not None:
         app.qos = config.qos
+        if app.mqtt_log_handler:
+            app.mqtt_log_handler.qos = config.qos
 
     if config.mqtt_username is not None or config.mqtt_password is not None:
         username = config.mqtt_username if config.mqtt_username is not None else app.username
-        password = config.mqtt_password
+        password = config.mqtt_password if config.mqtt_password is not None else getattr(app, 'password', None)
         app.username = username
+        if config.mqtt_password is not None:
+            app.password = config.mqtt_password
         app.mqtt.username_pw_set(username, password)
 
     if config.log_mqtt is not None:
@@ -89,6 +93,7 @@ def _apply_overrides(cli, app):
             app.log.addHandler(app.mqtt_log_handler)
         elif not config.log_mqtt and app.mqtt_log_handler:
             app.log.removeHandler(app.mqtt_log_handler)
+            app.mqtt_log_handler.close()
             app.mqtt_log_handler = None
 
     if config.log_mqtt_topic is not None and app.mqtt_log_handler:
@@ -96,6 +101,10 @@ def _apply_overrides(cli, app):
 
     if config.status_enabled is not None:
         app.status_enabled = config.status_enabled
+        if app.status_enabled:
+            app.mqtt.will_set(f'{app.name}/{gethostname()}/status', 'offline', qos=app.qos, retain=True)
+        else:
+            app.mqtt.will_clear()
 
     if config.max_inflight_messages is not None:
         app.mqtt.max_inflight_messages_set(config.max_inflight_messages)
