@@ -30,7 +30,14 @@ def test_custom_mqtt_topic_derivation():
     assert app.mqtt_log_handler.topic == 'custom/base/debug'
 
 
-def test_custom_log_topic_wins():
+def test_topic_derivation_with_features_disabled():
+    app = make_gourd(status_enabled=False, log_mqtt=False, mqtt_topic='custom/base')
+    assert app.mqtt_topic == 'custom/base'
+    assert app.status_topic == 'custom/base/status'
+    assert app.mqtt_log_handler is None
+
+
+def test_mqtt_log_topic_overrides_default():
     app = make_gourd(log_mqtt=True, mqtt_topic='custom/base', mqtt_log_topic='custom/debug')
     assert app.mqtt_log_handler.topic == 'custom/debug'
 
