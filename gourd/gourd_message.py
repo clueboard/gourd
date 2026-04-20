@@ -16,14 +16,19 @@ class GourdMessage:
 
     @property
     def json(self):
-        if self._json is None:
-            self._json = {}
+        payload = self.payload
+        parsed_payload = {}
 
-            if self.payload.startswith('{') and self.payload.endswith('}'):
-                try:
-                    self._json = json.loads(self.payload)
-                except Exception as e:
-                    log.warning('Could not decode payload as JSON: %s (%s)', self.payload, e)
+        if self._json is not None:
+            return self._json
+
+        if payload.startswith('{') and payload.endswith('}'):
+            try:
+                parsed_payload = json.loads(payload)
+            except Exception as e:
+                log.warning('Could not decode payload as JSON: %s (%s)', payload, e)
+
+        self._json = parsed_payload
 
         return self._json
 

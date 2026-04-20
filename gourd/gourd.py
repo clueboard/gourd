@@ -1,6 +1,7 @@
 import atexit
 import logging
 import threading
+import warnings
 from socket import gethostname
 
 import paho.mqtt.client
@@ -36,7 +37,6 @@ class Gourd:
     """
     def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
         if message_retry_sec is not None:
-            import warnings
             warnings.warn(
                 "message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.",
                 DeprecationWarning,
@@ -164,20 +164,26 @@ class Gourd:
         """Called when an MQTT server connection is established.
         """
         self.log.info("MQTT connected: %s", reason_code)
+
         if reason_code.is_failure:
             self.log.error("Could not connect. Error: %s", reason_code)
-        else:
-            if self.status_enabled:
-                self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
-            self.do_subscribe()
+
+            return
+
+        if self.status_enabled:
+            self.mqtt.publish(self.status_topic, payload=self.status_online, qos=1, retain=True)
+
+        self.do_subscribe()
 
     def on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
         """Called when an MQTT server is disconnected.
         """
         if not reason_code.is_failure:
             self.log.info("MQTT disconnected cleanly")
-        else:
-            self.log.error("MQTT disconnected unexpectedly (rc=%s)", reason_code)
+
+            return
+
+        self.log.error("MQTT disconnected unexpectedly (rc=%s)", reason_code)
 
     def on_exit(self):
         """Called when exiting to ensure we cleanup and disconnect cleanly.
@@ -197,6 +203,7 @@ class Gourd:
                 for func in funcs:
                     try:
                         func(GourdMessage(msg))
+
                     except Exception as e:
                         self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
                         self.log.exception(e)

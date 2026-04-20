@@ -29,8 +29,10 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
 @cli.entrypoint('CLI for starting Gourd apps.')
 def main(cli):
-    if ':' not in cli.args.gourd_app:
-        cli.log.error('Invalid entrypoint: %s', cli.args.gourd_app)
+    gourd_app = cli.args.gourd_app
+
+    if ':' not in gourd_app:
+        cli.log.error('Invalid entrypoint: %s', gourd_app)
         sys.exit(2)
 
     for path in cli.args.sys_path:
@@ -39,7 +41,7 @@ def main(cli):
     if cli.args.relative_path and '.' not in sys.path:
         sys.path.append('.')
 
-    module_name, app_name = cli.args.gourd_app.split(':', 1)
+    module_name, app_name = gourd_app.split(':', 1)
     cli.log.debug('Importing module "%s" with sys.path of %s', module_name, repr(sys.path))
     module = import_module(module_name)
 
@@ -100,36 +102,42 @@ def _apply_credential_overrides(cli, config, app):
 
     Both --mqtt-username and --mqtt-password must be provided together.
     """
-    if config.mqtt_username is not None and config.mqtt_password is None:
+    mqtt_username = config.mqtt_username
+    mqtt_password = config.mqtt_password
+    has_username = mqtt_username is not None
+    has_password = mqtt_password is not None
+
+    if has_username != has_password:
         cli.log.error('Both --mqtt-username and --mqtt-password must be provided together.')
         sys.exit(2)
 
-    if config.mqtt_password is not None and config.mqtt_username is None:
-        cli.log.error('Both --mqtt-username and --mqtt-password must be provided together.')
-        sys.exit(2)
+    if not has_username:
+        return
 
-    if config.mqtt_username is not None and config.mqtt_password is not None:
-        app.username = config.mqtt_username
-        app.mqtt.username_pw_set(config.mqtt_username, config.mqtt_password)
+    app.username = mqtt_username
+    app.mqtt.username_pw_set(mqtt_username, mqtt_password)
 
 
 def _apply_log_mqtt_overrides(config, app):
     """Apply MQTT logging overrides."""
     default_log_topic = f'{app.mqtt_topic}/debug'
+    log_mqtt = config.log_mqtt
+    log_mqtt_topic = config.log_mqtt_topic
 
-    if config.log_mqtt is not None:
-        if config.log_mqtt and not app.mqtt_log_handler:
-            topic = config.log_mqtt_topic or default_log_topic
+    if log_mqtt is not None:
+        if log_mqtt and not app.mqtt_log_handler:
+            topic = log_mqtt_topic or default_log_topic
             app.mqtt_log_handler = MQTTLogHandler(mqtt_client=app.mqtt, topic=topic, qos=app.qos, retain=False)
             app.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
             app.log.addHandler(app.mqtt_log_handler)
-        elif not config.log_mqtt and app.mqtt_log_handler:
+
+        elif not log_mqtt and app.mqtt_log_handler:
             app.log.removeHandler(app.mqtt_log_handler)
             app.mqtt_log_handler.close()
             app.mqtt_log_handler = None
 
-    if config.log_mqtt_topic is not None and app.mqtt_log_handler:
-        app.mqtt_log_handler.topic = config.log_mqtt_topic
+    if log_mqtt_topic is not None and app.mqtt_log_handler:
+        app.mqtt_log_handler.topic = log_mqtt_topic
 
 
 if __name__ == '__main__':
