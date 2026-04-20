@@ -47,7 +47,7 @@ def main(cli):
     try:
         cli.log.debug('Getting object "%s" from module "%s"', app_name, module_name)
         app = getattr(module, app_name)
-    except AttributeError as e:
+    except AttributeError:
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
         exit(2)
 

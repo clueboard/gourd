@@ -7,17 +7,11 @@ def _validate_wildcard(pattern):
     for i, level in enumerate(levels):
         if '#' in level:
             if level != '#':
-                raise ValueError(
-                    f"Invalid MQTT topic filter: '#' must occupy an entire level: {pattern!r}"
-                )
+                raise ValueError(f"Invalid MQTT topic filter: '#' must occupy an entire level: {pattern!r}")
             if i != len(levels) - 1:
-                raise ValueError(
-                    f"Invalid MQTT topic filter: '#' must be the last level: {pattern!r}"
-                )
+                raise ValueError(f"Invalid MQTT topic filter: '#' must be the last level: {pattern!r}")
         if '+' in level and level != '+':
-            raise ValueError(
-                f"Invalid MQTT topic filter: '+' must occupy an entire level: {pattern!r}"
-            )
+            raise ValueError(f"Invalid MQTT topic filter: '+' must occupy an entire level: {pattern!r}")
 
 
 def mqtt_wildcard(topic, wildcard):

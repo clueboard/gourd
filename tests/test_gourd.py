@@ -1,5 +1,5 @@
 """Unit tests for Gourd class methods."""
-from unittest.mock import MagicMock, call, patch, ANY
+from unittest.mock import MagicMock, patch
 
 
 def make_reason_code(failure=False):
@@ -16,6 +16,7 @@ def make_gourd(status_enabled=False):
 
 
 # --- subscribe ---
+
 
 def test_subscribe_registers_handler():
     app = make_gourd()
@@ -41,6 +42,7 @@ def test_subscribe_returns_handler():
 
 # --- do_subscribe ---
 
+
 def test_do_subscribe_sends_tuples():
     app = make_gourd()
     app.mqtt_topics['test/topic'] = []
@@ -53,6 +55,7 @@ def test_do_subscribe_sends_tuples():
 
 
 # --- publish ---
+
 
 def test_publish_default_qos():
     app = make_gourd()
@@ -73,6 +76,7 @@ def test_publish_passes_kwargs():
 
 
 # --- on_connect ---
+
 
 def test_on_connect_success_publishes_status():
     app = make_gourd(status_enabled=True)
@@ -104,6 +108,7 @@ def test_on_connect_status_disabled():
 
 # --- on_disconnect ---
 
+
 def test_on_disconnect_clean():
     app = make_gourd()
     app.on_disconnect(None, None, None, make_reason_code(failure=False), None)  # should not raise
@@ -115,6 +120,7 @@ def test_on_disconnect_unexpected():
 
 
 # --- thread ---
+
 
 def test_thread_registers_handler():
     app = make_gourd()
@@ -183,6 +189,7 @@ def test_thread_passes_args_to_function():
 
 
 # --- on_exit ---
+
 
 def test_on_exit_with_status():
     app = make_gourd(status_enabled=True)
