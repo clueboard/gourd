@@ -85,7 +85,7 @@ def _apply_overrides(cli, app):
     if config.status_enabled is not None:
         app.status_enabled = config.status_enabled
         if app.status_enabled:
-            app.mqtt.will_set(app.status_topic, app.status_offline, qos=app.qos, retain=True)
+            app.mqtt.will_set(app.status_topic, payload=app.status_offline, qos=1, retain=True)
         else:
             app.mqtt.will_clear()
 
