@@ -66,10 +66,7 @@ class Gourd:
         self.log = logging.getLogger(__name__)
         self.log.addHandler(logging.NullHandler())
 
-        if mqtt_log_topic is None:
-            mqtt_log_topic = log_topic
-        if mqtt_log_topic is None:
-            mqtt_log_topic = f'{self.mqtt_topic}/debug'
+        mqtt_log_topic = mqtt_log_topic or log_topic or f'{self.mqtt_topic}/debug'
 
         # Setup MQTT
         self.mqtt = paho.mqtt.client.Client(callback_api_version=CallbackAPIVersion.VERSION2)
