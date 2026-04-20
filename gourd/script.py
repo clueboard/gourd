@@ -18,7 +18,7 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 @cli.argument('--mqtt-port', default=None, type=int, help='The MQTT broker port.')
 @cli.argument('--mqtt-username', default=None, help='Username for MQTT broker authentication.')
 @cli.argument('--mqtt-password', default=None, help='Password for MQTT broker authentication.')
-@cli.argument('--qos', default=None, type=int, help='Default QoS level (0, 1, or 2).')
+@cli.argument('--qos', default=None, type=int, choices=[0, 1, 2], help='Default QoS level (0, 1, or 2).')
 @cli.argument('--timeout', default=None, type=int, help='MQTT connection keepalive timeout in seconds.')
 @cli.argument('--log-mqtt', action='store_boolean', default=None, help='Enable or disable MQTT logging.')
 @cli.argument('--log-mqtt-topic', default=None, help='The MQTT topic to publish log messages to.')
