@@ -24,7 +24,12 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Check formatting with yapf
-        run: yapf --diff --exit-code --recursive gourd/ tests/
+        run: |
+          output=$(yapf --diff --recursive gourd/ tests/)
+          if [ -n "$output" ]; then
+            echo "$output"
+            exit 1
+          fi
 
       - name: Lint with flake8
         run: flake8 gourd/ tests/
