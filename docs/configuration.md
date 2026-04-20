@@ -24,29 +24,43 @@ app = Gourd(
 
 ## Environment Variables
 
-When you run your app with the `gourd` CLI, connection settings can be configured via environment variables in addition to constructor arguments and command-line flags. Gourd uses [MILC](https://milc.clueboard.co/) to provide a unified search order:
+Gourd reads environment variables at construction time, so settings work regardless of whether you use the `gourd` CLI or run your script directly with Python.
 
-1. **Command-line argument** (`--mqtt-host broker.local`)
-2. **Environment variable** (`GOURD_MQTT_HOST=broker.local`)
-3. **Config file** (managed by MILC)
-4. **Constructor default** (the value passed in your Python code)
+By default there is no prefix — env vars are simply `MQTT_HOST`, `USERNAME`, etc. You can add a prefix by passing `env_prefix` to the constructor:
 
-| Setting | CLI Flag | Environment Variable |
+```python
+# No prefix (default): reads MQTT_HOST, USERNAME, etc.
+app = Gourd(app_name='my_app')
+
+# With prefix: reads MY_APP_MQTT_HOST, MY_APP_USERNAME, etc.
+app = Gourd(app_name='my_app', env_prefix='MY_APP')
+
+# Disable env var support entirely
+app = Gourd(app_name='my_app', env_prefix=None)
+```
+
+The search order for each setting (highest priority wins):
+
+1. **Command-line flag** (`gourd --mqtt-host broker.local my_app:app`)
+2. **Environment variable** (`MQTT_HOST=broker.local`)
+3. **Constructor argument** (the value passed in your Python code)
+
+| Setting | Env Variable (no prefix) | Env Variable (prefix=`MY_APP`) |
 |---|---|---|
-| MQTT host | `--mqtt-host` | `GOURD_MQTT_HOST` |
-| MQTT port | `--mqtt-port` | `GOURD_MQTT_PORT` |
-| Username | `--username` | `GOURD_USERNAME` |
-| Password | `--password` | `GOURD_PASSWORD` |
-| QoS | `--qos` | `GOURD_QOS` |
-| Timeout | `--timeout` | `GOURD_TIMEOUT` |
+| MQTT host | `MQTT_HOST` | `MY_APP_MQTT_HOST` |
+| MQTT port | `MQTT_PORT` | `MY_APP_MQTT_PORT` |
+| Username | `USERNAME` | `MY_APP_USERNAME` |
+| Password | `PASSWORD` | `MY_APP_PASSWORD` |
+| QoS | `QOS` | `MY_APP_QOS` |
+| Timeout | `TIMEOUT` | `MY_APP_TIMEOUT` |
 
 For example, to run your app against a different broker without changing code:
 
 ```shell
-GOURD_MQTT_HOST=broker.local gourd my_app:app
+MQTT_HOST=broker.local gourd my_app:app
 ```
 
-Or use command-line flags:
+Or use command-line flags (these override env vars):
 
 ```shell
 gourd --mqtt-host broker.local --username mqtt --password secret my_app:app
