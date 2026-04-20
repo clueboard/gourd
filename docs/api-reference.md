@@ -189,7 +189,7 @@ def handle(message):
 
 ## `app.log`
 
-A standard Python `logging.Logger` instance. It is pre-configured to send log output to both the console and the MQTT debug topic (`{app_name}/{hostname}/debug` by default).
+A standard Python `logging.Logger` instance. It is pre-configured to send log output to both the console and the MQTT debug topic (`{mqtt_topic}/debug` by default, where `mqtt_topic` defaults to `{app_name}/{hostname}`).
 
 ```python
 app.log.debug('detailed trace')

@@ -3,7 +3,6 @@
 import logging
 import sys
 from importlib import import_module
-from socket import gethostname
 
 from milc import cli
 
@@ -116,9 +115,11 @@ def _apply_credential_overrides(cli, config, app):
 
 def _apply_log_mqtt_overrides(config, app):
     """Apply MQTT logging overrides."""
+    default_log_topic = f'{app.mqtt_topic}/debug'
+
     if config.log_mqtt is not None:
         if config.log_mqtt and not app.mqtt_log_handler:
-            topic = config.log_mqtt_topic or f'{app.name}/{gethostname()}/debug'
+            topic = config.log_mqtt_topic or default_log_topic
             app.mqtt_log_handler = MQTTLogHandler(mqtt_client=app.mqtt, topic=topic, qos=app.qos, retain=False)
             app.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
             app.log.addHandler(app.mqtt_log_handler)

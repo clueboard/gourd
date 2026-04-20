@@ -18,7 +18,7 @@ app = Gourd(
 )
 ```
 
-`app_name` is the only required argument. It is used as the base of the auto-generated status and log topics.
+`app_name` is the only required argument. By default, topic values are generated from `{app_name}/{hostname}` unless overridden with `mqtt_topic`.
 
 Constructor defaults can be overridden at runtime via command-line flags, environment variables, or a config file. Gourd uses [MILC](https://milc.clueboard.co/) to resolve values in this order:
 
@@ -74,14 +74,16 @@ gourd --config-file /etc/gourd/my_app.ini my_app:app
 | MQTT port | `mqtt_port` | `--mqtt-port` | `MQTT_PORT` | `1883` |
 | MQTT username | `username` | `--mqtt-username` | `MQTT_USERNAME` | `''` |
 | MQTT password | `password` | `--mqtt-password` | `MQTT_PASSWORD` | `''` |
+| MQTT topic base | `mqtt_topic` | — | — | `{app_name}/{hostname}` |
 | [MQTT QoS](https://eclipse.dev/paho/files/mqttdoc/MQTTClient/html/qos.html) | `qos` | `--qos` | `QOS` | `1` |
 | Keepalive timeout (seconds) | `timeout` | `--timeout` | `TIMEOUT` | `30` |
 | Enable [LWT](https://eclipse.dev/paho/files/mqttdoc/MQTTClient/html/struct_m_q_t_t_client__will_options.html) status | `status_enabled` | `--status-enabled` / `--no-status-enabled` | `STATUS_ENABLED` | `True` |
-| Status topic | `status_topic` | — | — | `{app_name}/{hostname}/status` |
+| Status topic | `status_topic` | — | — | `{mqtt_topic}/status` |
 | Status online payload | `status_online` | — | — | `'ON'` |
 | Status offline payload | `status_offline` | — | — | `'OFF'` |
 | Enable MQTT logging | `log_mqtt` | `--log-mqtt` / `--no-log-mqtt` | `LOG_MQTT` | `True` |
-| Log topic | `log_topic` | `--log-mqtt-topic` | `LOG_MQTT_TOPIC` | `{app_name}/{hostname}/debug` |
+| Log topic | `mqtt_log_topic` | `--log-mqtt-topic` | `LOG_MQTT_TOPIC` | `{mqtt_topic}/debug` |
+| Log topic (deprecated alias) | `log_topic` | — | — | `None` |
 | Max in-flight messages | `max_inflight_messages` | `--max-inflight-messages` | `MAX_INFLIGHT_MESSAGES` | `20` |
 | Max queued messages | `max_queued_messages` | `--max-queued-messages` | `MAX_QUEUED_MESSAGES` | `0` (unlimited) |
 
