@@ -3,13 +3,11 @@
 import sys
 from importlib import import_module
 
-from milc import set_metadata
+from milc import cli
 
 __VERSION__ = '1.0.2'
 
-set_metadata(name='Gourd', version=__VERSION__, author='Clueboard')
-
-from milc import cli
+cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard')
 
 
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
