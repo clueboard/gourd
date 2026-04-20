@@ -179,7 +179,7 @@ def test_status_enable_sets_will():
 
     _apply_overrides(cli, app)
     assert app.status_enabled is True
-    app.mqtt.will_set.assert_called_once_with(app.status_topic, app.status_offline, qos=1, retain=True)
+    app.mqtt.will_set.assert_called_once_with(app.status_topic, payload=app.status_offline, qos=1, retain=True)
 
 
 def test_status_disable_clears_will():
