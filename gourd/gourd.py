@@ -232,7 +232,7 @@ class Gourd:
                 try:
                     overrides[attr_name] = type_fn(env_value)
                 except (ValueError, TypeError):
-                    self.log.warning('Ignoring invalid value for %s: %r', env_key, env_value)
+                    logging.getLogger(__name__).warning('Ignoring invalid value for %s: %r', env_key, env_value)
 
         return overrides
 
