@@ -42,6 +42,19 @@ def test_mqtt_log_topic_overrides_default():
     assert app.mqtt_log_handler.topic == 'custom/debug'
 
 
+def test_log_topic_alias_sets_mqtt_log_topic():
+    app = make_gourd(log_mqtt=True, mqtt_topic='custom/base', log_topic='legacy/debug')
+    assert app.mqtt_log_handler.topic == 'legacy/debug'
+
+
+def test_mqtt_log_topic_takes_precedence_over_log_topic():
+    app = make_gourd(
+        log_mqtt=True,
+        mqtt_topic='custom/base',
+        mqtt_log_topic='custom/debug',
+        log_topic='legacy/debug',
+    )
+    assert app.mqtt_log_handler.topic == 'custom/debug'
 # --- subscribe ---
 
 
