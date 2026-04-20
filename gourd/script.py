@@ -108,7 +108,6 @@ def _apply_credential_overrides(config, app):
 
     if has_username and has_password:
         app.username = config.mqtt_username
-        app.password = config.mqtt_password
         app.mqtt.username_pw_set(config.mqtt_username, config.mqtt_password)
 
 
