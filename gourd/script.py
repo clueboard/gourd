@@ -1,9 +1,13 @@
 """CLI for starting gourd apps
 """
+import logging
 import sys
 from importlib import import_module
+from socket import gethostname
 
 from milc import cli
+
+from gourd.mqtt_log_handler import MQTTLogHandler
 
 __VERSION__ = '1.0.2'
 
@@ -78,7 +82,12 @@ def _apply_overrides(cli, app):
         app.mqtt.username_pw_set(username, password)
 
     if config.log_mqtt is not None:
-        if not config.log_mqtt and app.mqtt_log_handler:
+        if config.log_mqtt and not app.mqtt_log_handler:
+            topic = config.log_mqtt_topic or f'{app.name}/{gethostname()}/debug'
+            app.mqtt_log_handler = MQTTLogHandler(mqtt_client=app.mqtt, topic=topic, qos=app.qos, retain=False)
+            app.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
+            app.log.addHandler(app.mqtt_log_handler)
+        elif not config.log_mqtt and app.mqtt_log_handler:
             app.log.removeHandler(app.mqtt_log_handler)
             app.mqtt_log_handler = None
 
