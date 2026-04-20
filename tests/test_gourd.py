@@ -55,6 +55,8 @@ def test_mqtt_log_topic_takes_precedence_over_log_topic():
         log_topic='legacy/debug',
     )
     assert app.mqtt_log_handler.topic == 'custom/debug'
+
+
 # --- subscribe ---
 
 
