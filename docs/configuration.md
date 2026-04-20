@@ -42,7 +42,7 @@ CLI flags, environment variables, and config file tokens all share the same nami
     - in config file:  
 ```
 [general]
-mqtt_host: 127.0.0.1
+mqtt_host = 127.0.0.1
 ```
 
 ### Config file

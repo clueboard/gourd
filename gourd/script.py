@@ -32,7 +32,7 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 def main(cli):
     if ':' not in cli.args.gourd_app:
         cli.log.error('Invalid entrypoint: %s', cli.args.gourd_app)
-        exit(2)
+        sys.exit(2)
 
     for path in cli.args.sys_path:
         sys.path.append(path)
@@ -49,7 +49,7 @@ def main(cli):
         app = getattr(module, app_name)
     except AttributeError:
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
-        exit(2)
+        sys.exit(2)
 
     _apply_overrides(cli, app)
     app.run_forever()
