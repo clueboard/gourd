@@ -24,7 +24,7 @@ class GourdMessage:
 
     @property
     def json(self):
-        payload = self.text
+        payload = self.payload
 
         if self._json is not None:
             return self._json
