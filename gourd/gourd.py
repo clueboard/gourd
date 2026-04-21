@@ -39,7 +39,6 @@ class Gourd:
         tls_ca_certs=None           Path to PEM bundle containing trusted root/intermediate certificates
         tls_certfile=None           Path to PEM file containing client certificate (optionally with chain)
         tls_keyfile=None            Path to PEM file containing client private key
-        message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
 
     def __init__(
@@ -67,15 +66,7 @@ class Gourd:
         tls_ca_certs=None,
         tls_certfile=None,
         tls_keyfile=None,
-        message_retry_sec=None,
     ):
-        if message_retry_sec is not None:
-            warnings.warn(
-                'message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.',
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
         self.name = app_name
         self.mqtt_host = mqtt_host
         self.mqtt_port = mqtt_port

@@ -169,15 +169,3 @@ gourd --tls-enabled --no-tls-verify my_app:app
 ```
 
 > ⚠️ **Warning:** Disabling verification exposes your connection to man-in-the-middle attacks. Only use this in isolated test environments.
-
----
-
-## Deprecated Arguments
-
-| Argument | Status |
-|---|---|
-| `message_retry_sec` | **Deprecated.** Accepted but ignored. Will be removed in a future release. |
-
-`message_retry_sec` was used to configure paho-mqtt v1's message retry interval. paho-mqtt v2 removed that API. Passing this argument now emits a `DeprecationWarning`. Remove it from your code.
-
-See [Upgrading](../upgrading/) for migration details.
