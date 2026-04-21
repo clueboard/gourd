@@ -70,6 +70,11 @@ def test_json_non_object_returns_empty_dict():
     assert msg.json == {}
 
 
+def test_json_non_utf8_payload_returns_empty_dict():
+    msg = GourdMessage(make_paho_msg(b'\xff'))
+    assert msg.json == {}
+
+
 def test_json_cached():
     with patch('gourd.gourd_message.json.loads', wraps=json.loads) as mock_loads:
         msg = GourdMessage(make_paho_msg(b'{"a": 1}'))

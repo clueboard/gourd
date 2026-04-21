@@ -24,9 +24,14 @@ class GourdMessage:
 
     @property
     def json(self):
-        payload = self.payload
-
         if self._json is not None:
+            return self._json
+
+        try:
+            payload = self.text
+        except UnicodeDecodeError:
+            self._json = {}
+
             return self._json
 
         if not payload.startswith('{') or not payload.endswith('}'):
