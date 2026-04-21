@@ -116,7 +116,7 @@ def _apply_credential_overrides(cli, config, app):
         return
 
     app.username = mqtt_username
-    app.mqtt.username_pw_set(mqtt_username, mqtt_password)
+    app.mqtt.username_pw_set(mqtt_username, mqtt_password)  # Not storing mqtt_password is a deliberate choice
 
 
 def _apply_log_mqtt_overrides(config, app):
