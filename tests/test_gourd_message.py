@@ -1,4 +1,5 @@
 """Unit tests for gourd.gourd_message.GourdMessage."""
+
 import json
 from unittest.mock import MagicMock, patch
 from gourd.gourd_message import GourdMessage
@@ -38,6 +39,7 @@ def test_json_valid():
 
 def test_json_invalid_returns_empty_dict(caplog):
     import logging
+
     with caplog.at_level(logging.WARNING, logger='gourd.gourd_message'):
         msg = GourdMessage(make_paho_msg(b'{not valid json}'))
         assert msg.json == {}

@@ -79,7 +79,7 @@ Set up a local development environment with uv:
 
 Run the existing checks through the uv-managed environment:
 
-    uv run yapf --diff --recursive gourd/ tests/
+    uv run ruff format --check gourd/ tests/
     uv run ruff check gourd/ tests/
     uv run ty check gourd/ tests/
     uv run python -m pytest tests/ -v
@@ -211,4 +211,4 @@ Please follow this checklist before submitting a PR:
 
 * [ ] Follow the guidelines in <CODESTYLE.md>
 * [ ] Install dev dependencies with `uv sync --dev`
-* [ ] Format your code: `uv run yapf -i -r .`
+* [ ] Format your code: `uv run ruff format gourd/ tests/`

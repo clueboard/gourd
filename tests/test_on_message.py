@@ -1,4 +1,5 @@
 """Unit tests for Gourd.on_message dispatch."""
+
 from unittest.mock import MagicMock, patch
 from gourd.gourd_message import GourdMessage
 
@@ -7,6 +8,7 @@ def make_gourd():
     with patch('gourd.gourd.paho.mqtt.client.Client'):
         with patch('gourd.gourd.atexit.register'):
             from gourd import Gourd
+
             return Gourd(app_name='test', log_mqtt=False, status_enabled=False)
 
 
