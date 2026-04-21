@@ -24,7 +24,7 @@ app = Gourd(
 
 @app.subscribe('#')
 def print_all(message):
-    print(f'{message.topic}: {message.payload}')
+    print(f'{message.topic}: {message.text}')
 
 if __name__ == '__main__':
     app.run_forever()
@@ -37,11 +37,11 @@ if __name__ == '__main__':
 ```python
 @app.subscribe('lights/#')
 def handle_lights(message):
-    app.log.info(f'Light update: {message.topic} = {message.payload}')
+    app.log.info(f'Light update: {message.topic} = {message.text}')
 
 @app.subscribe('sensors/#')
 def handle_sensors(message):
-    app.log.info(f'Sensor reading: {message.topic} = {message.payload}')
+    app.log.info(f'Sensor reading: {message.topic} = {message.text}')
 ```
 
 ---
@@ -54,7 +54,7 @@ Stack `@app.subscribe` decorators to call the same function for multiple topics:
 @app.subscribe('home/kitchen/light')
 @app.subscribe('home/living_room/light')
 def handle_light(message):
-    app.log.info(f'{message.topic} is now {message.payload}')
+    app.log.info(f'{message.topic} is now {message.text}')
 ```
 
 ---
@@ -71,7 +71,7 @@ def handle_reading(message):
         humidity = message.json.get('humidity')
         app.log.info(f'temp={temp}°C humidity={humidity}%')
     else:
-        app.log.warning(f'Unexpected payload on {message.topic}: {message.payload!r}')
+        app.log.warning(f'Unexpected payload on {message.topic}: {message.text!r}')
 ```
 
 ---
@@ -109,7 +109,7 @@ app = Gourd(app_name='sensor_publisher', mqtt_host='broker.local')
 
 @app.subscribe('commands/#')
 def handle_command(message):
-    app.log.info(f'Command received: {message.topic} = {message.payload}')
+    app.log.info(f'Command received: {message.topic} = {message.text}')
 
 @app.thread()
 def poll_sensor():

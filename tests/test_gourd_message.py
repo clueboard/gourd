@@ -2,6 +2,8 @@
 
 import json
 from unittest.mock import MagicMock, patch
+
+import pytest
 from gourd.gourd_message import GourdMessage
 
 
@@ -17,12 +19,14 @@ def make_paho_msg(payload, topic='test/topic'):
 
 def test_bytes_payload_decoded():
     msg = GourdMessage(make_paho_msg(b'hello'))
-    assert msg.payload == 'hello'
+    assert msg.payload == b'hello'
+    assert msg.text == 'hello'
 
 
 def test_payload_stripped():
     msg = GourdMessage(make_paho_msg(b'  hello\n'))
-    assert msg.payload == 'hello'
+    assert msg.payload == b'  hello\n'
+    assert msg.text == 'hello'
 
 
 def test_string_payload_passed_through():
@@ -30,6 +34,15 @@ def test_string_payload_passed_through():
     paho_msg.payload = 'already a string'
     msg = GourdMessage(paho_msg)
     assert msg.payload == 'already a string'
+    assert msg.text == 'already a string'
+
+
+def test_non_utf8_bytes_payload_preserved():
+    msg = GourdMessage(make_paho_msg(b'\xff'))
+    assert msg.payload == b'\xff'
+
+    with pytest.raises(UnicodeDecodeError):
+        _ = msg.text
 
 
 def test_json_valid():

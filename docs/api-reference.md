@@ -14,7 +14,7 @@ A decorator that registers a function as a handler for an MQTT topic. When a mes
 ```python
 @app.subscribe('sensors/temperature')
 def handle_temp(message):
-    app.log.info(f'Temperature: {message.payload}')
+    app.log.info(f'Temperature: {message.text}')
 ```
 
 Registering the handler also subscribes to the topic on the broker — you don't need to call anything else.
@@ -38,7 +38,7 @@ You can register multiple functions for the same topic. They are called in regis
 ```python
 @app.subscribe('sensors/temperature')
 def log_temp(message):
-    app.log.info(message.payload)
+    app.log.info(message.text)
 
 @app.subscribe('sensors/temperature')
 def store_temp(message):
@@ -53,7 +53,7 @@ Stack decorators to register the same function for multiple topics:
 @app.subscribe('sensors/temperature')
 @app.subscribe('sensors/humidity')
 def handle_sensor(message):
-    app.log.info(f'{message.topic}: {message.payload}')
+    app.log.info(f'{message.topic}: {message.text}')
 ```
 
 ---
@@ -163,9 +163,13 @@ def handle(message):
     print(message.topic)  # e.g. "sensors/room1/temp"
 ```
 
-**`message.payload`** — `str`
+**`message.payload`** — original MQTT payload type (typically `bytes`)
 
-The message payload decoded as UTF-8, with leading and trailing whitespace stripped.
+The raw payload from paho-mqtt, unchanged.
+
+**`message.text`** — `str`
+
+The payload decoded as UTF-8 text. For byte payloads, leading and trailing whitespace is stripped.
 
 **`message.json`** — `dict`
 
@@ -180,7 +184,7 @@ def handle(message):
         temp = message.json.get('celsius')
     else:
         # plain string payload
-        raw = message.payload
+        raw = message.text
 ```
 
 **All other attributes** delegate to the underlying `paho.mqtt.client.MQTTMessage`, including `qos`, `retain`, `mid`, `timestamp`, etc.

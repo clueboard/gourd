@@ -39,7 +39,7 @@ app = Gourd(
 
 @app.subscribe('sensors/#')
 def handle_sensor(message):
-    app.log.info(f'{message.topic}: {message.payload}')
+    app.log.info(f'{message.topic}: {message.text}')
 
 if __name__ == '__main__':
     app.run_forever()
