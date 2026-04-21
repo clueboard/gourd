@@ -10,7 +10,6 @@ tests/
 *.toml
 *.txt
 README.md
-BREAKING_CHANGES.md
 AGENTS.md
 CLAUDE.md
 LICENSE
