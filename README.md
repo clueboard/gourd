@@ -71,6 +71,18 @@ Gourd is available on pypi and can be installed with pip:
 
     python3 -m pip install gourd
 
+## Development
+
+Set up a local development environment with uv:
+
+    uv sync --dev
+
+Run the existing checks through the uv-managed environment:
+
+    uv run yapf --diff --recursive gourd/ tests/
+    uv run python -m flake8 gourd/ tests/
+    uv run python -m pytest tests/ -v
+
 ## API Reference
 
 ### `Gourd` objects
@@ -197,4 +209,5 @@ a PR and we'll review it.
 Please follow this checklist before submitting a PR:
 
 * [ ] Follow the guidelines in <CODESTYLE.md>
-* [ ] Format your code: `yapf -i -r .`
+* [ ] Install dev dependencies with `uv sync --dev`
+* [ ] Format your code: `uv run yapf -i -r .`

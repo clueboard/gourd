@@ -1,8 +1,0 @@
--r requirements.txt
-build
-bumpversion
-flake8
-pytest
-semver
-twine
-yapf
