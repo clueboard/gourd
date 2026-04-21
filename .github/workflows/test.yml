@@ -32,8 +32,11 @@ jobs:
             exit 1
           fi
 
-      - name: Lint with flake8
-        run: uv run python -m flake8 gourd/ tests/
+      - name: Lint with ruff
+        run: uv run ruff check gourd/ tests/
+
+      - name: Type check with ty
+        run: uv run ty check gourd/ tests/
 
   test:
     runs-on: ubuntu-latest

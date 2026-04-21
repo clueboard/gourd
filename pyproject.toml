@@ -41,12 +41,17 @@ gourd = "gourd.script:cli"
 dev = [
     "build",
     "bumpversion",
-    "flake8",
     "pytest",
+    "ruff",
     "semver",
+    "ty",
     "twine",
     "yapf",
 ]
 
 [tool.setuptools.packages.find]
 include = ["gourd*"]
+
+[tool.ruff.lint]
+ignore = ["E226", "E501"]
+per-file-ignores = { "**/__init__.py" = ["F401"], "tests/**" = ["N802"] }

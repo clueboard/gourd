@@ -55,12 +55,9 @@ class Gourd:
 
         # Setup the status topic
         self.status_enabled = status_enabled
-        self.status_topic = status_topic
+        self.status_topic: str = status_topic or f'{self.mqtt_topic}/status'
         self.status_online = status_online
         self.status_offline = status_offline
-
-        if not self.status_topic:
-            self.status_topic = f'{self.mqtt_topic}/status'
 
         # Setup logging
         self.log = logging.getLogger(__name__)

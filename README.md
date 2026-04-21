@@ -80,7 +80,8 @@ Set up a local development environment with uv:
 Run the existing checks through the uv-managed environment:
 
     uv run yapf --diff --recursive gourd/ tests/
-    uv run python -m flake8 gourd/ tests/
+    uv run ruff check gourd/ tests/
+    uv run ty check gourd/ tests/
     uv run python -m pytest tests/ -v
 
 ## API Reference
