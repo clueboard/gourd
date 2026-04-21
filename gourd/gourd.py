@@ -203,7 +203,6 @@ class Gourd:
                 for func in funcs:
                     try:
                         func(GourdMessage(msg))
-
                     except Exception as e:
                         self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
                         self.log.exception(e)
