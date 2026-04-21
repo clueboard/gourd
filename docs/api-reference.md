@@ -169,8 +169,9 @@ The raw payload from paho-mqtt, unchanged.
 
 **`message.text`** — `str`
 
-The payload decoded as UTF-8 text. For byte payloads, leading and trailing whitespace is stripped.
+The payload decoded as UTF-8 text. For byte payloads, the payload is decoded as UTF-8 and leading and trailing whitespace is stripped. If a byte payload is not valid UTF-8, accessing `message.text` raises `UnicodeDecodeError`.
 
+Use `message.text` only when the payload is known to be UTF-8 text. For arbitrary or binary payloads, use `message.payload` instead.
 **`message.json`** — `dict`
 
 If the payload looks like a JSON object (starts with `{` and ends with `}`), this is the parsed result. Otherwise it is an empty dict `{}`.

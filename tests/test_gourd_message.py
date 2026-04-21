@@ -17,7 +17,7 @@ def make_paho_msg(payload, topic='test/topic'):
     return msg
 
 
-def test_bytes_payload_decoded():
+def test_bytes_payload_preserved_and_text_decoded():
     msg = GourdMessage(make_paho_msg(b'hello'))
     assert msg.payload == b'hello'
     assert msg.text == 'hello'
