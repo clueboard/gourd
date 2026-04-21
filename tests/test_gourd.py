@@ -88,6 +88,13 @@ def test_tls_verify_disabled_sets_insecure_mode():
     app.mqtt.tls_insecure_set.assert_called_once_with(True)
 
 
+def test_tls_verify_disabled_explicitly_enables_tls_even_when_tls_disabled():
+    app = make_gourd(tls_enabled=False, tls_verify=False)
+    assert app.tls_enabled is True
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(True)
+
+
 # --- subscribe ---
 
 

@@ -62,7 +62,7 @@ class Gourd:
         self.tls_ca_certs = tls_ca_certs
         self.tls_certfile = tls_certfile
         self.tls_keyfile = tls_keyfile
-        auto_enable_tls = any([tls_ca_certs, tls_certfile, tls_keyfile]) or not tls_verify
+        auto_enable_tls = any([tls_ca_certs, tls_certfile, tls_keyfile]) or (tls_verify is False)
         self.tls_enabled = tls_enabled or auto_enable_tls
 
         # Setup the status topic
