@@ -2,7 +2,6 @@ import atexit
 import logging
 import ssl
 import threading
-import warnings
 from socket import gethostname
 
 import paho.mqtt.client
