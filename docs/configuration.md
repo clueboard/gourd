@@ -162,11 +162,13 @@ gourd --mqtt-host broker.local --mqtt-port 8883 --tls-enabled \
   my_app:app
 ```
 
-To disable broker certificate/hostname verification (not recommended outside controlled environments):
+To disable broker certificate/hostname verification:
 
 ```shell
 gourd --tls-enabled --no-tls-verify my_app:app
 ```
+
+> ⚠️ **Warning:** Disabling verification exposes your connection to man-in-the-middle attacks. Only use this in isolated test environments.
 
 ---
 
