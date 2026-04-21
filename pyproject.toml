@@ -46,8 +46,13 @@ dev = [
     "semver",
     "ty",
     "twine",
-    "yapf",
 ]
+
+[tool.ruff]
+line-length = 512
+
+[tool.ruff.format]
+quote-style = "single"
 
 [tool.setuptools.packages.find]
 include = ["gourd*"]
