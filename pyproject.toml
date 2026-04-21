@@ -1,6 +1,57 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "gourd"
+version = "1.0.2"
+description = "An opinionated framework for writing MQTT applications."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "skullydazed", email = "skullydazed@gmail.com" }]
+dependencies = [
+    "milc",
+    "paho-mqtt>=2",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/clueboard/gourd/issues"
+Homepage = "https://gourd.clueboard.co/"
+Source = "https://github.com/clueboard/gourd/"
+
+[project.scripts]
+gourd = "gourd.script:cli"
+
+[dependency-groups]
+dev = [
+    "build",
+    "bumpversion",
+    "pytest",
+    "ruff",
+    "semver",
+    "ty",
+    "twine",
+    "yapf",
+]
+
+[tool.setuptools.packages.find]
+include = ["gourd*"]
+
+[tool.ruff.lint]
+ignore = ["E226", "E501"]
+per-file-ignores = { "**/__init__.py" = ["F401"], "tests/**" = ["N802"] }
