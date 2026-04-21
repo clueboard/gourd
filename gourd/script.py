@@ -24,6 +24,11 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 @cli.argument('--status-enabled', action='store_boolean', default=None, help='Enable or disable the status topic.')
 @cli.argument('--max-inflight-messages', default=None, type=int, help='Maximum number of in-flight QoS > 0 messages.')
 @cli.argument('--max-queued-messages', default=None, type=int, help='Maximum number of queued messages (0 = unlimited).')
+@cli.argument('--tls-enabled', action='store_boolean', default=None, help='Enable or disable TLS for broker connection.')
+@cli.argument('--tls-verify', action='store_boolean', default=None, help='Enable or disable TLS certificate/hostname verification.')
+@cli.argument('--tls-ca-certs', default=None, help='Path to PEM bundle with trusted root/intermediate certificates.')
+@cli.argument('--tls-certfile', default=None, help='Path to PEM file with client certificate (optionally including chain).')
+@cli.argument('--tls-keyfile', default=None, help='Path to PEM file with client private key.')
 @cli.argument('--sys-path', action='append', default=[], help='Append this path to sys.path (Can be passed multiple times.)')
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
@@ -68,6 +73,7 @@ def _apply_overrides(cli, app):
 
     _apply_credential_overrides(cli, config, app)
     _apply_log_mqtt_overrides(config, app)
+    _apply_tls_overrides(config, app)
 
     if config.mqtt_host is not None:
         app.mqtt_host = config.mqtt_host
@@ -138,6 +144,38 @@ def _apply_log_mqtt_overrides(config, app):
 
     if log_mqtt_topic is not None and app.mqtt_log_handler:
         app.mqtt_log_handler.topic = log_mqtt_topic
+
+
+def _apply_tls_overrides(config, app):
+    """Apply MQTT TLS overrides."""
+    tls_settings_changed = False
+
+    if config.tls_enabled is not None:
+        app.tls_enabled = config.tls_enabled
+        tls_settings_changed = True
+
+    if config.tls_verify is not None:
+        app.tls_verify = config.tls_verify
+        tls_settings_changed = True
+
+    if config.tls_ca_certs is not None:
+        app.tls_ca_certs = config.tls_ca_certs
+        tls_settings_changed = True
+
+    if config.tls_certfile is not None:
+        app.tls_certfile = config.tls_certfile
+        tls_settings_changed = True
+
+    if config.tls_keyfile is not None:
+        app.tls_keyfile = config.tls_keyfile
+        tls_settings_changed = True
+
+    if not app.tls_enabled and any([app.tls_ca_certs, app.tls_certfile, app.tls_keyfile]) or (app.tls_verify is False):
+        app.tls_enabled = True
+        tls_settings_changed = True
+
+    if tls_settings_changed and app.tls_enabled:
+        app._configure_tls()
 
 
 if __name__ == '__main__':

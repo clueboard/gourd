@@ -57,6 +57,37 @@ def test_mqtt_log_topic_takes_precedence_over_log_topic():
     assert app.mqtt_log_handler.topic == 'custom/debug'
 
 
+def test_tls_enabled_configures_client():
+    app = make_gourd(tls_enabled=True)
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(False)
+
+
+def test_tls_disabled_does_not_configure_client():
+    app = make_gourd()
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_tls_custom_cert_paths_are_applied():
+    app = make_gourd(
+        tls_enabled=True,
+        tls_ca_certs='/tmp/ca-chain.pem',
+        tls_certfile='/tmp/client-chain.pem',
+        tls_keyfile='/tmp/client.key',
+    )
+    kwargs = app.mqtt.tls_set.call_args.kwargs
+    assert kwargs['ca_certs'] == '/tmp/ca-chain.pem'
+    assert kwargs['certfile'] == '/tmp/client-chain.pem'
+    assert kwargs['keyfile'] == '/tmp/client.key'
+
+
+def test_tls_verify_disabled_sets_insecure_mode():
+    app = make_gourd(tls_verify=False)
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(True)
+
+
 # --- subscribe ---
 
 
