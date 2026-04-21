@@ -33,19 +33,17 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.14'
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel 
-        pip install -r requirements-dev.txt
+      run: uv sync --dev --frozen
     - name: Configure git
       run: |
         git config --local user.email "skullydazed@gmail.com"
         git config --local user.name "Zach White"
     - name: Bump version
       if: github.event.inputs.version_part != 'current'
-      run: |
-        bumpversion ${{ github.event.inputs.version_part }}
+      run: uv run bumpversion ${{ github.event.inputs.version_part }}
     - name: Push changes
       if: github.event.inputs.version_part != 'current'
       run: git push --follow-tags
@@ -54,5 +52,5 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
-        python3 -m build
-        twine upload --verbose dist/*
+        uv build
+        uv run twine upload --verbose dist/*

@@ -1,4 +1,5 @@
 """Unit tests for _apply_overrides and its helpers in gourd.script."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -8,6 +9,7 @@ def make_gourd(status_enabled=False, log_mqtt=False, **kwargs):
     with patch('gourd.gourd.paho.mqtt.client.Client'):
         with patch('gourd.gourd.atexit.register'):
             from gourd import Gourd
+
             return Gourd(app_name='test', log_mqtt=log_mqtt, status_enabled=status_enabled, **kwargs)
 
 

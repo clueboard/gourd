@@ -1,5 +1,5 @@
-"""CLI for starting gourd apps
-"""
+"""CLI for starting gourd apps"""
+
 import logging
 import sys
 from importlib import import_module
