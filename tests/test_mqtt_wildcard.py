@@ -1,5 +1,5 @@
-"""Unit tests for gourd.mqtt_wildcard.
-"""
+"""Unit tests for gourd.mqtt_wildcard."""
+
 import pytest
 from gourd.mqtt_wildcard import mqtt_wildcard
 

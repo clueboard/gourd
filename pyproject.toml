@@ -49,7 +49,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 512
+line-length = 320
 
 [tool.ruff.format]
 quote-style = "single"

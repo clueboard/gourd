@@ -35,10 +35,32 @@ class Gourd:
         max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
         message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
-    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
+
+    def __init__(
+        self,
+        app_name,
+        *,
+        mqtt_topic=None,
+        mqtt_host='localhost',
+        mqtt_port=1883,
+        username='',
+        password='',
+        qos=1,
+        timeout=30,
+        log_mqtt=True,
+        mqtt_log_topic=None,
+        log_topic=None,
+        status_enabled=True,
+        status_topic=None,
+        status_online='ON',
+        status_offline='OFF',
+        max_inflight_messages=20,
+        max_queued_messages=0,
+        message_retry_sec=None,
+    ):
         if message_retry_sec is not None:
             warnings.warn(
-                "message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.",
+                'message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.',
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -96,21 +118,19 @@ class Gourd:
         atexit.register(self.on_exit)
 
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
-        """Publish a message to the MQTT server.
-        """
+        """Publish a message to the MQTT server."""
         if qos is None:
             qos = self.qos
 
         self.mqtt.publish(topic, payload, qos=qos, **kwargs)
 
     def connect(self):
-        """Connect to the MQTT server.
-        """
+        """Connect to the MQTT server."""
         self.mqtt.connect(self.mqtt_host, self.mqtt_port, self.timeout)
 
     def subscribe(self, topic):
-        """Decorator that registers a function to be called whenever a message for a topic is sent.
-        """
+        """Decorator that registers a function to be called whenever a message for a topic is sent."""
+
         def inner_function(handler):
             if topic not in self.mqtt_topics:
                 self.mqtt_topics[topic] = []
@@ -139,6 +159,7 @@ class Gourd:
             def worker(arg, key=None):
                 ...
         """
+
         def decorator(func):
             if func not in (entry[0] for entry in self.thread_funcs):
                 self.thread_funcs.append((func, args, kwargs))
@@ -153,17 +174,15 @@ class Gourd:
             t.start()
 
     def do_subscribe(self):
-        """Subscribe to our topics.
-        """
+        """Subscribe to our topics."""
         self.mqtt.subscribe([(topic, self.qos) for topic in self.mqtt_topics])
 
     def on_connect(self, client, userdata, connect_flags, reason_code, properties):
-        """Called when an MQTT server connection is established.
-        """
-        self.log.info("MQTT connected: %s", reason_code)
+        """Called when an MQTT server connection is established."""
+        self.log.info('MQTT connected: %s', reason_code)
 
         if reason_code.is_failure:
-            self.log.error("Could not connect. Error: %s", reason_code)
+            self.log.error('Could not connect. Error: %s', reason_code)
 
             return
 
@@ -173,26 +192,23 @@ class Gourd:
         self.do_subscribe()
 
     def on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
-        """Called when an MQTT server is disconnected.
-        """
+        """Called when an MQTT server is disconnected."""
         if not reason_code.is_failure:
-            self.log.info("MQTT disconnected cleanly")
+            self.log.info('MQTT disconnected cleanly')
 
             return
 
-        self.log.error("MQTT disconnected unexpectedly (rc=%s)", reason_code)
+        self.log.error('MQTT disconnected unexpectedly (rc=%s)', reason_code)
 
     def on_exit(self):
-        """Called when exiting to ensure we cleanup and disconnect cleanly.
-        """
+        """Called when exiting to ensure we cleanup and disconnect cleanly."""
         if self.status_enabled:
             self.mqtt.publish(self.status_topic, payload=self.status_offline, qos=1, retain=True)
             self.mqtt.loop(timeout=0.5)  # Give the publish a chance to transmit before disconnecting
         self.mqtt.disconnect()
 
     def on_message(self, client, userdata, msg):
-        """Called when paho has a message from the queue to process.
-        """
+        """Called when paho has a message from the queue to process."""
         self.log.debug('Got a message for topic:%s payload:%s', msg.topic, msg.payload)
 
         for topic, funcs in self.mqtt_topics.items():
@@ -201,25 +217,22 @@ class Gourd:
                     try:
                         func(GourdMessage(msg))
                     except Exception as e:
-                        self.log.error("Uncaught exception in %s.on_message: %s", self.__class__.__name__, e)
+                        self.log.error('Uncaught exception in %s.on_message: %s', self.__class__.__name__, e)
                         self.log.exception(e)
 
     def loop_start(self):
-        """Run the program in a separate thread.
-        """
+        """Run the program in a separate thread."""
         if not self.mqtt.is_connected():
             self.connect()
         self._start_threads()
         return self.mqtt.loop_start()
 
     def loop_stop(self):
-        """Stop the mqtt loop.
-        """
+        """Stop the mqtt loop."""
         return self.mqtt.loop_stop()
 
     def run_forever(self):
-        """Run the program until forcibly quit.
-        """
+        """Run the program until forcibly quit."""
         try:
             self.connect()
             self._start_threads()
