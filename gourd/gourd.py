@@ -62,8 +62,7 @@ class Gourd:
         self.tls_ca_certs = tls_ca_certs
         self.tls_certfile = tls_certfile
         self.tls_keyfile = tls_keyfile
-        auto_enable_tls = any((tls_ca_certs, tls_certfile, tls_keyfile)) or (tls_verify is False)
-        self.tls_enabled = tls_enabled or auto_enable_tls
+        self.tls_enabled = tls_enabled or self._should_auto_enable_tls()
 
         # Setup the status topic
         self.status_enabled = status_enabled
@@ -120,6 +119,9 @@ class Gourd:
         cert_reqs = ssl.CERT_REQUIRED if self.tls_verify else ssl.CERT_NONE
         self.mqtt.tls_set(ca_certs=self.tls_ca_certs, certfile=self.tls_certfile, keyfile=self.tls_keyfile, cert_reqs=cert_reqs)
         self.mqtt.tls_insecure_set(not self.tls_verify)
+
+    def _should_auto_enable_tls(self):
+        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile)) or (self.tls_verify is False)
 
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
         """Publish a message to the MQTT server.

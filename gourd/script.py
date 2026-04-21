@@ -170,7 +170,7 @@ def _apply_tls_overrides(config, app):
         app.tls_keyfile = config.tls_keyfile
         tls_settings_changed = True
 
-    if not app.tls_enabled and (any((app.tls_ca_certs, app.tls_certfile, app.tls_keyfile)) or (app.tls_verify is False)):
+    if not app.tls_enabled and app._should_auto_enable_tls():
         app.tls_enabled = True
         tls_settings_changed = True
 
