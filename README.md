@@ -4,36 +4,42 @@ Gourd is an opinionated framework for writing MQTT applications.
 
 > See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) if you are upgrading from a previous version.
 
-# Simple example
+## Features
 
-Create a file `gourd_example.py`:
+* Create a fully-functional MQTT app in minutes
+* Status published to `<app_name>/<hostname>/status` with a Last Will and Testament
+* Debug logs published to `<app_name>/<hostname>/debug`
+* Use decorators to associate topics with one or more functions
+* JSON dictionary payloads automatically decoded to `msg.json`
+
+## Quick Start
+
+Install Gourd:
+
+```shell
+python3 -m pip install gourd
+```
+
+Create a file `my_app.py`:
 
 ```python
 from gourd import Gourd
 
-app = Gourd(app_name='my_app', mqtt_host='localhost', mqtt_port=1883, username='mqtt', password='my_password')
+app = Gourd(app_name='my_app', mqtt_host='localhost')
 
 
 @app.subscribe('#')
-def print_all_messages(message):
+def print_all(message):
     app.log.info(f'{message.topic}: {message.payload}')
 ```
 
 Run it:
 
 ```shell
-$ gourd gourd_example:app
+gourd my_app:app
 ```
 
-# Features
-
-* Create a fully-functional MQTT app in minutes
-* Status published to `<app_name>/<hostname>/status` with a Last Will and Testament
-* Debug logs published to `<app_name>/<hostname>/debug`
-* Use decorators to associate topics with one or more functions
-* JSON dictionary payloads automatically decoded to `msg.json`.
-
-# Documentation
+## Documentation
 
 Full documentation is available at **https://gourd.clueboard.co/** and in the [docs/](docs/) directory:
 
@@ -42,188 +48,27 @@ Full documentation is available at **https://gourd.clueboard.co/** and in the [d
 * [API Reference](docs/api-reference.md)
 * [Examples](docs/examples.md)
 * [Upgrading](docs/upgrading.md)
-
-### Working on the Docs
-
-The docs site is built with [Eleventy](https://www.11ty.dev/) and deployed automatically to GitHub Pages on every push to `main`.
-
-**Prerequisites:** Node.js 20+
-
-Install dependencies:
-
-    npm install
-
-Local development server (live-reloads on file changes):
-
-    npm run dev
-
-Then open http://localhost:8080.
-
-Build the site:
-
-    npm run build
-
-Output goes to `_site/` (gitignored).
-
-## Installation
-
-Gourd is available on pypi and can be installed with pip:
-
-    python3 -m pip install gourd
+* [Contributing](docs/contributing.md)
 
 ## Development
 
-Set up a local development environment with uv:
+Set up a local development environment:
 
-    uv sync --dev
-
-Run the existing checks through the uv-managed environment:
-
-    uv run ruff format --check gourd/ tests/
-    uv run ruff check gourd/ tests/
-    uv run ty check gourd/ tests/
-    uv run python -m pytest tests/ -v
-
-## API Reference
-
-### `Gourd` objects
-
-To create your app you'll need an instance of the Gourd class. Unless your MQTT server is running on your local machine with no authentication you'll need to pass in some arguments:
-
-```python
-class Gourd:
-    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, tls_enabled=False, tls_verify=True, tls_ca_certs=None, tls_certfile=None, tls_keyfile=None, message_retry_sec=None):
+```shell
+uv sync --dev
 ```
 
-#### Recommended arguments
+Run checks:
 
-These are the arguments you should almost always use:
-
-* mqtt_host
-    * Default: `localhost`
-    * The MQTT server to connect to
-* username
-    * Default: ``
-    * The username to connect to the MQTT server with
-* password
-    * Default: ``
-    * The password to connect to the MQTT server with
-
-#### Optional arguments
-
-These are the arguments that only need to be set if the default behavior does not work for your application:
-
-* mqtt_port
-    * Default: `1883`
-    * The port number to connect to
-* qos
-    * Default: `1`
-    * Default QOS Level for messages
-* timeout
-    * Default: `30`
-    * The timeout for the MQTT connection
-* mqtt_topic
-    * Default: Generated from app_name and hostname: `{app_name}/{gethostname()}`
-    * The base MQTT topic used for derived topics
-* log_mqtt
-    * Default: `True`
-    * Set to false to disable mqtt logging
-* mqtt_log_topic
-    * Default: Generated from mqtt_topic: `{mqtt_topic}/debug`
-    * The MQTT topic to send debug logs to
-* log_topic
-    * Default: `None`
-    * Deprecated alias for `mqtt_log_topic`
-* status_enabled
-    * Default: `True`
-    * Set to false to disable the status topic
-* status_topic
-    * Default: Generated from mqtt_topic: `{mqtt_topic}/status`
-    * The topic to publish application status (ON/OFF) to
-* status_online
-    * Default: `ON`
-    * The payload to publish to status_topic when we are running
-* status_offline
-    * Default: `OFF`
-    * The payload to publish to status_topic when we are not running
-* max_inflight_messages
-    * Default: `20`
-    * How many messages can be in-flight. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
-* max_queued_messages
-    * Default: `0`
-    * How many messages can be queued at a time. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
-* tls_enabled
-    * Default: `False`
-    * Enable TLS for broker connections
-* tls_verify
-    * Default: `True`
-    * Verify broker TLS certificate and hostname (when TLS is enabled)
-* tls_ca_certs
-    * Default: `None`
-    * Path to a PEM bundle containing trusted root/intermediate certificates
-* tls_certfile
-    * Default: `None`
-    * Path to a PEM client certificate file (may include chain)
-* tls_keyfile
-    * Default: `None`
-    * Path to a PEM client private key file
-* message_retry_sec
-    * **Deprecated.** This argument is ignored and will be removed in a future release.
-
-### Useful functions
-
-#### `Gourd.publish(topic, payload=None, *, qos=None, **kwargs)`
-
-This function will let you publish messages to MQTT. You can delete a retained message by passing a payload of None.
-
-All kwargs are passed directly to PaHo MQTT's `publish()`..
-
-#### `Gourd.loop_start()`
-
-This function will kick off Gourd in a separate thread, useful when you need to do something else in the main thread.
-
-Normally you do not need to use this, you will run your program using `gourd my_module:my_app`. However, if you need to control the main thread instead of gourd this function will spawn a separate thread for gourd to run in.
-
-### `subscribe` Decorators
-
-Once you've instaniated your gourd object you can use the `subscribe` decorator to subscribe to a topic. This will both subscribe to the specified topic and register your function to be called when a message for that topic is received. You can register multiple functions for the same topic and they will be called in the order they were registered.
-
-```python
-    def subscribe(self, topic):
+```shell
+uv run ruff format --check gourd/ tests/
+uv run ruff check gourd/ tests/
+uv run ty check gourd/ tests/
+uv run pytest
 ```
 
-## Logging
+See [docs/contributing.md](docs/contributing.md) for docs-site development and contribution guidance.
 
-By default all logging will be sent to the console and to the MQTT debug topic (`{app_name}/{gethostname()}/debug`).
-
-### Logging to a file
-
-You can also log to a file with `gourd --log-file <path>`. There are more ways to control the log output, see `gourd --help` for details.
-
-### Logging to the MQTT server
-
-By default your app will log to the topic `{app_name}/{gethostname()}/debug`. You can disable this behavior by passing `log_mqtt=False` when you instaniate `Gourd`.
-
-### Sending Log Messages
-
-A logger has been provided for you to use, no setup needed. Just use `app.log.<level>()` to log your messages.
-
-## Last Will and Testament
-
-By default your app will publish its online status and a LWT to `{app_name}/{gethostname()}/status`. You can disable this behavior by passing `status_enabled=False` when instaniating `Gourd`.
-
-# Reporting Bugs and Requesting Features
+## Reporting Bugs and Requesting Features
 
 Please let us know about any bugs and/or feature requests you have: <https://github.com/clueboard/gourd/issues>
-
-# Contributing
-
-Contributions are welcome! You don't need to open an issue first, if
-you've developed a new feature or fixed a bug in Gourd simply open
-a PR and we'll review it.
-
-Please follow this checklist before submitting a PR:
-
-* [ ] Follow the guidelines in <CODESTYLE.md>
-* [ ] Install dev dependencies with `uv sync --dev`
-* [ ] Format your code: `uv run ruff format gourd/ tests/`

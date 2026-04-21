@@ -50,3 +50,4 @@ gourd my_app:app
 - [API Reference](docs/api-reference/) — `subscribe`, `publish`, `GourdMessage`, and more
 - [Examples](docs/examples/) — copy-paste patterns for common tasks
 - [Upgrading](docs/upgrading/) — migration guide for breaking changes
+- [Contributing](docs/contributing/) — development checks, docs-site workflow, and contribution guidance
