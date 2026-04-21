@@ -148,34 +148,23 @@ def _apply_log_mqtt_overrides(config, app):
 
 def _apply_tls_overrides(config, app):
     """Apply MQTT TLS overrides."""
-    tls_settings_changed = False
-
     if config.tls_enabled is not None:
         app.tls_enabled = config.tls_enabled
-        tls_settings_changed = True
 
     if config.tls_verify is not None:
         app.tls_verify = config.tls_verify
-        tls_settings_changed = True
 
     if config.tls_ca_certs is not None:
         app.tls_ca_certs = config.tls_ca_certs
-        tls_settings_changed = True
 
     if config.tls_certfile is not None:
         app.tls_certfile = config.tls_certfile
-        tls_settings_changed = True
 
     if config.tls_keyfile is not None:
         app.tls_keyfile = config.tls_keyfile
-        tls_settings_changed = True
 
     if config.tls_enabled is None and not app.tls_enabled and app._should_auto_enable_tls():
         app.tls_enabled = True
-        tls_settings_changed = True
-
-    if tls_settings_changed and app.tls_enabled:
-        app._configure_tls()
 
 
 if __name__ == '__main__':

@@ -41,7 +41,34 @@ class Gourd:
         tls_keyfile=None            Path to PEM file containing client private key
         message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
-    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, tls_enabled=False, tls_verify=True, tls_ca_certs=None, tls_certfile=None, tls_keyfile=None, message_retry_sec=None):
+
+    def __init__(
+        self,
+        app_name,
+        *,
+        mqtt_topic=None,
+        mqtt_host='localhost',
+        mqtt_port=1883,
+        username='',
+        password='',
+        qos=1,
+        timeout=30,
+        log_mqtt=True,
+        mqtt_log_topic=None,
+        log_topic=None,
+        status_enabled=True,
+        status_topic=None,
+        status_online='ON',
+        status_offline='OFF',
+        max_inflight_messages=20,
+        max_queued_messages=0,
+        tls_enabled=False,
+        tls_verify=True,
+        tls_ca_certs=None,
+        tls_certfile=None,
+        tls_keyfile=None,
+        message_retry_sec=None,
+    ):
         if message_retry_sec is not None:
             warnings.warn(
                 'message_retry_sec is ignored in paho-mqtt v2 and will be removed in a future version.',
@@ -87,7 +114,6 @@ class Gourd:
         self.mqtt.max_inflight_messages_set(max_inflight_messages)
         self.mqtt.max_queued_messages_set(max_queued_messages)
         self.mqtt.username_pw_set(username, password)
-        self._configure_tls()
 
         # Register mqtt callbacks
         self.mqtt.on_connect = self.on_connect
@@ -130,6 +156,8 @@ class Gourd:
 
     def connect(self):
         """Connect to the MQTT server."""
+        if self.tls_enabled:
+            self._configure_tls()
         self.mqtt.connect(self.mqtt_host, self.mqtt_port, self.timeout)
 
     def subscribe(self, topic):
