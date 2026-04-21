@@ -121,7 +121,7 @@ class Gourd:
         self.mqtt.tls_insecure_set(not self.tls_verify)
 
     def _should_auto_enable_tls(self):
-        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile)) or (self.tls_verify is False)
+        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile)) or (not self.tls_verify)
 
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
         """Publish a message to the MQTT server.
