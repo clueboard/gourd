@@ -335,3 +335,21 @@ def test_override_tls_cert_paths_enable_and_configure_tls():
     assert kwargs['ca_certs'] == '/tmp/ca-chain.pem'
     assert kwargs['certfile'] == '/tmp/client-chain.pem'
     assert kwargs['keyfile'] == '/tmp/client.key'
+
+
+def test_override_tls_disabled_with_cert_paths_does_not_enable_tls():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(
+        tls_enabled=False,
+        tls_ca_certs='/tmp/ca-chain.pem',
+        tls_certfile='/tmp/client-chain.pem',
+        tls_keyfile='/tmp/client.key',
+    )
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
