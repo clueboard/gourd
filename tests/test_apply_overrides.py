@@ -27,6 +27,11 @@ def make_config(**overrides):
         'status_enabled': None,
         'max_inflight_messages': None,
         'max_queued_messages': None,
+        'tls_enabled': None,
+        'tls_verify': None,
+        'tls_ca_certs': None,
+        'tls_certfile': None,
+        'tls_keyfile': None,
     }
     defaults.update(overrides)
 
@@ -270,3 +275,102 @@ def test_override_max_queued_messages():
 
     _apply_overrides(cli, app)
     app.mqtt.max_queued_messages_set.assert_called_with(100)
+
+
+# --- TLS overrides ---
+
+
+def test_override_tls_enabled_updates_state_without_configuring_client():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(tls_enabled=True)
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is True
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+    app.connect()
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(False)
+
+
+def test_override_tls_verify_false_updates_state_without_configuring_client():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(tls_enabled=True, tls_verify=False)
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is True
+    assert app.tls_verify is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_override_tls_verify_false_without_tls_enabled_does_not_enable_tls():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(tls_verify=False)
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is False
+    assert app.tls_verify is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_override_tls_cert_paths_enable_without_configuring_client():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(
+        tls_ca_certs='/tmp/ca-chain.pem',
+        tls_certfile='/tmp/client-chain.pem',
+        tls_keyfile='/tmp/client.key',
+    )
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is True
+    assert app.tls_ca_certs == '/tmp/ca-chain.pem'
+    assert app.tls_certfile == '/tmp/client-chain.pem'
+    assert app.tls_keyfile == '/tmp/client.key'
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_override_tls_disabled_with_cert_paths_does_not_enable_tls():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(
+        tls_enabled=False,
+        tls_ca_certs='/tmp/ca-chain.pem',
+        tls_certfile='/tmp/client-chain.pem',
+        tls_keyfile='/tmp/client.key',
+    )
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_override_no_tls_enabled_prevents_auto_enabled_tls_from_configuring_on_connect():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd(tls_ca_certs='/tmp/ca-chain.pem')
+    config = make_config(tls_enabled=False)
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is False
+    app.connect()
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()

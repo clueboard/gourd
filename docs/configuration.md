@@ -86,8 +86,15 @@ gourd --config-file /etc/gourd/my_app.ini my_app:app
 | Log topic (deprecated alias) | `log_topic` | — | — | `None` |
 | Max in-flight messages | `max_inflight_messages` | `--max-inflight-messages` | `MAX_INFLIGHT_MESSAGES` | `20` |
 | Max queued messages | `max_queued_messages` | `--max-queued-messages` | `MAX_QUEUED_MESSAGES` | `0` (unlimited) |
+| Enable TLS | `tls_enabled` | `--tls-enabled` / `--no-tls-enabled` | `TLS_ENABLED` | `False` |
+| Verify TLS cert + hostname | `tls_verify` | `--tls-verify` / `--no-tls-verify` | `TLS_VERIFY` | `True` |
+| Trusted CA bundle (root/intermediate) | `tls_ca_certs` | `--tls-ca-certs` | `TLS_CA_CERTS` | `None` |
+| Client certificate (optionally with chain) | `tls_certfile` | `--tls-certfile` | `TLS_CERTFILE` | `None` |
+| Client private key | `tls_keyfile` | `--tls-keyfile` | `TLS_KEYFILE` | `None` |
 
 `--mqtt-username` and `--mqtt-password` must be provided together at runtime.
+
+`tls_verify` is only relevant when TLS is enabled (`tls_enabled=True` or TLS cert paths are provided).
 
 ---
 
@@ -144,6 +151,24 @@ Or use command-line flags:
 ```shell
 gourd --mqtt-host broker.local --mqtt-username mqtt --mqtt-password secret my_app:app
 ```
+
+TLS example with custom trust and mTLS files:
+
+```shell
+gourd --mqtt-host broker.local --mqtt-port 8883 --tls-enabled \
+  --tls-ca-certs /etc/ssl/my-ca-chain.pem \
+  --tls-certfile /etc/ssl/client-chain.pem \
+  --tls-keyfile /etc/ssl/client.key \
+  my_app:app
+```
+
+To disable broker certificate/hostname verification:
+
+```shell
+gourd --tls-enabled --no-tls-verify my_app:app
+```
+
+> ⚠️ **Warning:** Disabling verification exposes your connection to man-in-the-middle attacks. Only use this in isolated test environments.
 
 ---
 

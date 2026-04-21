@@ -1,5 +1,6 @@
 import atexit
 import logging
+import ssl
 import threading
 import warnings
 from socket import gethostname
@@ -33,6 +34,11 @@ class Gourd:
         status_offline='OFF'        The payload to publish to status_topic when we are not running
         max_inflight_messages=20    How many messages can be in-flight. See Paho MQTT documentation for more details.
         max_queued_messages=0       How many messages can be queued at a time. See Paho MQTT documentation for more details.
+        tls_enabled=False           Enable TLS for broker connection
+        tls_verify=True             Verify broker TLS certificate and hostname
+        tls_ca_certs=None           Path to PEM bundle containing trusted root/intermediate certificates
+        tls_certfile=None           Path to PEM file containing client certificate (optionally with chain)
+        tls_keyfile=None            Path to PEM file containing client private key
         message_retry_sec=None      Deprecated. Ignored in paho-mqtt v2.
     """
 
@@ -56,6 +62,11 @@ class Gourd:
         status_offline='OFF',
         max_inflight_messages=20,
         max_queued_messages=0,
+        tls_enabled=False,
+        tls_verify=True,
+        tls_ca_certs=None,
+        tls_certfile=None,
+        tls_keyfile=None,
         message_retry_sec=None,
     ):
         if message_retry_sec is not None:
@@ -74,6 +85,11 @@ class Gourd:
         self.timeout = timeout
         self.thread_funcs = []
         self.mqtt_topic = mqtt_topic or f'{app_name}/{gethostname()}'
+        self.tls_verify = tls_verify
+        self.tls_ca_certs = tls_ca_certs
+        self.tls_certfile = tls_certfile
+        self.tls_keyfile = tls_keyfile
+        self.tls_enabled = tls_enabled or self._should_auto_enable_tls()
 
         # Setup the status topic
         self.status_enabled = status_enabled
@@ -117,6 +133,20 @@ class Gourd:
         # Register handlers
         atexit.register(self.on_exit)
 
+    def _configure_tls(self):
+        """Configure MQTT TLS settings when enabled."""
+        if not self.tls_enabled:
+            return
+
+        # cert_reqs controls certificate validation; tls_insecure_set controls hostname checks.
+        cert_reqs = ssl.CERT_REQUIRED if self.tls_verify else ssl.CERT_NONE
+
+        self.mqtt.tls_set(ca_certs=self.tls_ca_certs, certfile=self.tls_certfile, keyfile=self.tls_keyfile, cert_reqs=cert_reqs)
+        self.mqtt.tls_insecure_set(not self.tls_verify)
+
+    def _should_auto_enable_tls(self):
+        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile))
+
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
         """Publish a message to the MQTT server."""
         if qos is None:
@@ -126,6 +156,8 @@ class Gourd:
 
     def connect(self):
         """Connect to the MQTT server."""
+        if self.tls_enabled:
+            self._configure_tls()
         self.mqtt.connect(self.mqtt_host, self.mqtt_port, self.timeout)
 
     def subscribe(self, topic):

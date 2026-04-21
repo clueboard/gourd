@@ -92,7 +92,7 @@ To create your app you'll need an instance of the Gourd class. Unless your MQTT 
 
 ```python
 class Gourd:
-    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, message_retry_sec=None):
+    def __init__(self, app_name, *, mqtt_topic=None, mqtt_host='localhost', mqtt_port=1883, username='', password='', qos=1, timeout=30, log_mqtt=True, mqtt_log_topic=None, log_topic=None, status_enabled=True, status_topic=None, status_online='ON', status_offline='OFF', max_inflight_messages=20, max_queued_messages=0, tls_enabled=False, tls_verify=True, tls_ca_certs=None, tls_certfile=None, tls_keyfile=None, message_retry_sec=None):
 ```
 
 #### Recommended arguments
@@ -152,6 +152,21 @@ These are the arguments that only need to be set if the default behavior does no
 * max_queued_messages
     * Default: `0`
     * How many messages can be queued at a time. See [Paho MQTT documentation](https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php#option-functions) for more details.
+* tls_enabled
+    * Default: `False`
+    * Enable TLS for broker connections
+* tls_verify
+    * Default: `True`
+    * Verify broker TLS certificate and hostname (when TLS is enabled)
+* tls_ca_certs
+    * Default: `None`
+    * Path to a PEM bundle containing trusted root/intermediate certificates
+* tls_certfile
+    * Default: `None`
+    * Path to a PEM client certificate file (may include chain)
+* tls_keyfile
+    * Default: `None`
+    * Path to a PEM client private key file
 * message_retry_sec
     * **Deprecated.** This argument is ignored and will be removed in a future release.
 

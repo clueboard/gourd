@@ -59,6 +59,67 @@ def test_mqtt_log_topic_takes_precedence_over_log_topic():
     assert app.mqtt_log_handler.topic == 'custom/debug'
 
 
+def test_tls_enabled_does_not_configure_client_until_connect():
+    app = make_gourd(tls_enabled=True)
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+    app.connect()
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(False)
+
+
+def test_tls_disabled_does_not_configure_client():
+    app = make_gourd()
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_tls_custom_cert_paths_are_applied():
+    app = make_gourd(
+        tls_enabled=True,
+        tls_ca_certs='/tmp/ca-chain.pem',
+        tls_certfile='/tmp/client-chain.pem',
+        tls_keyfile='/tmp/client.key',
+    )
+    app.connect()
+    kwargs = app.mqtt.tls_set.call_args.kwargs
+    assert kwargs['ca_certs'] == '/tmp/ca-chain.pem'
+    assert kwargs['certfile'] == '/tmp/client-chain.pem'
+    assert kwargs['keyfile'] == '/tmp/client.key'
+
+
+def test_tls_verify_disabled_sets_insecure_mode():
+    app = make_gourd(tls_enabled=True, tls_verify=False)
+    app.connect()
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(True)
+
+
+def test_tls_verify_false_does_not_auto_enable_tls():
+    app = make_gourd(tls_enabled=False, tls_verify=False)
+    assert app.tls_enabled is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_tls_cert_paths_auto_enable_tls():
+    app = make_gourd(tls_enabled=False, tls_ca_certs='/tmp/ca-chain.pem')
+    assert app.tls_enabled is True
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+    app.connect()
+    app.mqtt.tls_set.assert_called_once()
+    app.mqtt.tls_insecure_set.assert_called_once_with(False)
+
+
+def test_connect_without_tls_skips_tls_configuration():
+    app = make_gourd()
+    app.connect()
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+    app.mqtt.connect.assert_called_once_with(app.mqtt_host, app.mqtt_port, app.timeout)
+
+
 # --- subscribe ---
 
 
