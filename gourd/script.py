@@ -106,12 +106,14 @@ def _apply_credential_overrides(cli, config, app):
     mqtt_password = config.mqtt_password
     has_username = mqtt_username is not None
     has_password = mqtt_password is not None
+    credential_error = 'Both --mqtt-username and --mqtt-password must be provided together.'
+    has_partial_credentials = (has_username and not has_password) or (has_password and not has_username)
 
-    if has_username != has_password:
-        cli.log.error('Both --mqtt-username and --mqtt-password must be provided together.')
+    if has_partial_credentials:
+        cli.log.error(credential_error)
         sys.exit(2)
 
-    if not has_username:
+    if not has_username and not has_password:
         return
 
     app.username = mqtt_username
