@@ -2,7 +2,6 @@ import atexit
 import logging
 import ssl
 import threading
-import warnings
 from socket import gethostname
 
 import paho.mqtt.client
@@ -90,7 +89,7 @@ class Gourd:
 
         # Setup logging
         self.log = logging.getLogger(__name__)
-        self.log.addHandler(logging.NullHandler())
+        self.log.addHandler(logging.NullHandler())  # Preparation for mqtt debug logging, console logs are handled by the `gourd` CLI. or the client program if they are not using gourd's CLI
 
         if mqtt_log_topic is None:
             mqtt_log_topic = log_topic
