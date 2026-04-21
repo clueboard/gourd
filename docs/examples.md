@@ -159,4 +159,12 @@ If your app module is not in the current directory, use `--sys-path` to add it:
 gourd --sys-path /opt/myapps mymodule:app
 ```
 
-You can pass `--sys-path` multiple times to add several paths. Run `gourd --help` to see all available CLI options.
+You can pass `--sys-path` multiple times to add several paths.
+
+By default, Gourd also adds the current directory (`.`) to `sys.path` so that a module in the working directory can be imported without any flags. If you want to disable this behaviour (for example when the app is always accessed via an explicit `--sys-path`), pass `--no-relative-path`:
+
+```shell
+gourd --no-relative-path --sys-path /opt/myapps mymodule:app
+```
+
+Run `gourd --help` to see all available CLI options.
