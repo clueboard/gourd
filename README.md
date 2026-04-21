@@ -166,7 +166,7 @@ Once you've instaniated your gourd object you can use the `subscribe` decorator 
 
 ## Logging
 
-By default all logging will be sent to the console and to the MQTT debug topic (`{app_name}/{hostname}/debug`).
+By default all logging will be sent to the console and to the MQTT debug topic (`{app_name}/{gethostname()}/debug`).
 
 ### Logging to a file
 
