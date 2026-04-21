@@ -295,13 +295,27 @@ def test_override_tls_verify_false_configures_insecure_mode():
     from gourd.script import _apply_overrides
 
     app = make_gourd()
-    config = make_config(tls_verify=False)
+    config = make_config(tls_enabled=True, tls_verify=False)
     cli = make_cli(config)
 
     _apply_overrides(cli, app)
     assert app.tls_enabled is True
     assert app.tls_verify is False
     app.mqtt.tls_insecure_set.assert_called_once_with(True)
+
+
+def test_override_tls_verify_false_without_tls_enabled_does_not_enable_tls():
+    from gourd.script import _apply_overrides
+
+    app = make_gourd()
+    config = make_config(tls_verify=False)
+    cli = make_cli(config)
+
+    _apply_overrides(cli, app)
+    assert app.tls_enabled is False
+    assert app.tls_verify is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
 
 
 def test_override_tls_cert_paths_enable_and_configure_tls():

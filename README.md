@@ -144,7 +144,7 @@ These are the arguments that only need to be set if the default behavior does no
     * Enable TLS for broker connections
 * tls_verify
     * Default: `True`
-    * Verify broker TLS certificate and hostname
+    * Verify broker TLS certificate and hostname (when TLS is enabled)
 * tls_ca_certs
     * Default: `None`
     * Path to a PEM bundle containing trusted root/intermediate certificates

@@ -94,6 +94,8 @@ gourd --config-file /etc/gourd/my_app.ini my_app:app
 
 `--mqtt-username` and `--mqtt-password` must be provided together at runtime.
 
+`tls_verify` is only relevant when TLS is enabled (`tls_enabled=True` or TLS cert paths are provided).
+
 ---
 
 ## Status Topic

@@ -83,16 +83,23 @@ def test_tls_custom_cert_paths_are_applied():
 
 
 def test_tls_verify_disabled_sets_insecure_mode():
-    app = make_gourd(tls_verify=False)
+    app = make_gourd(tls_enabled=True, tls_verify=False)
     app.mqtt.tls_set.assert_called_once()
     app.mqtt.tls_insecure_set.assert_called_once_with(True)
 
 
-def test_tls_verify_false_auto_enables_tls():
+def test_tls_verify_false_does_not_auto_enable_tls():
     app = make_gourd(tls_enabled=False, tls_verify=False)
+    assert app.tls_enabled is False
+    app.mqtt.tls_set.assert_not_called()
+    app.mqtt.tls_insecure_set.assert_not_called()
+
+
+def test_tls_cert_paths_auto_enable_tls():
+    app = make_gourd(tls_enabled=False, tls_ca_certs='/tmp/ca-chain.pem')
     assert app.tls_enabled is True
     app.mqtt.tls_set.assert_called_once()
-    app.mqtt.tls_insecure_set.assert_called_once_with(True)
+    app.mqtt.tls_insecure_set.assert_called_once_with(False)
 
 
 # --- subscribe ---

@@ -115,13 +115,13 @@ class Gourd:
         if not self.tls_enabled:
             return
 
-        # Keep both controls aligned: certificate validation and hostname verification.
+        # cert_reqs controls certificate validation; tls_insecure_set controls hostname checks.
         cert_reqs = ssl.CERT_REQUIRED if self.tls_verify else ssl.CERT_NONE
         self.mqtt.tls_set(ca_certs=self.tls_ca_certs, certfile=self.tls_certfile, keyfile=self.tls_keyfile, cert_reqs=cert_reqs)
         self.mqtt.tls_insecure_set(not self.tls_verify)
 
     def _should_auto_enable_tls(self):
-        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile)) or (not self.tls_verify)
+        return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile))
 
     def publish(self, topic, payload=None, *, qos=None, **kwargs):
         """Publish a message to the MQTT server.
