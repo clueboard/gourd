@@ -117,6 +117,7 @@ class Gourd:
 
         # cert_reqs controls certificate validation; tls_insecure_set controls hostname checks.
         cert_reqs = ssl.CERT_REQUIRED if self.tls_verify else ssl.CERT_NONE
+
         self.mqtt.tls_set(ca_certs=self.tls_ca_certs, certfile=self.tls_certfile, keyfile=self.tls_keyfile, cert_reqs=cert_reqs)
         self.mqtt.tls_insecure_set(not self.tls_verify)
 
