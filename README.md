@@ -4,6 +4,14 @@ Gourd is an opinionated framework for writing MQTT applications.
 
 > See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) if you are upgrading from a previous version.
 
+## Features
+
+* Create a fully-functional MQTT app in minutes
+* Status published to `<app_name>/<hostname>/status` with a Last Will and Testament
+* Debug logs published to `<app_name>/<hostname>/debug`
+* Use decorators to associate topics with one or more functions
+* JSON dictionary payloads automatically decoded to `msg.json`
+
 ## Quick Start
 
 Install Gourd:
