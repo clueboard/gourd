@@ -2,7 +2,7 @@
 
 Gourd is an opinionated framework for writing MQTT applications.
 
-> See [BREAKING_CHANGES.md](BREAKING_CHANGES.md) if you are upgrading from a previous version.
+> See [docs/upgrading.md](docs/upgrading.md) for breaking changes when updating from a previous version.
 
 ## Features
 
