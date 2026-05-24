@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -8,7 +10,7 @@ log = logging.getLogger(__name__)
 class GourdMessage:
     def __init__(self, mqtt_message: Any) -> None:
         self.mqtt_message = mqtt_message
-        self._json: Optional[Any] = None
+        self._json: Any | None = None
         self.payload = mqtt_message.payload
 
     @property
@@ -24,7 +26,7 @@ class GourdMessage:
         return str(payload)
 
     @property
-    def json(self) -> Optional[Any]:
+    def json(self) -> Any | None:
         if self._json is not None:
             return self._json
 
