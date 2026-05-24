@@ -211,6 +211,12 @@ def test_on_connect_status_disabled():
     app.mqtt.subscribe.assert_called_once()
 
 
+def test_on_connect_success_with_no_topics_skips_subscribe():
+    app = make_gourd()
+    app.on_connect(None, None, None, make_reason_code(failure=False), None)
+    app.mqtt.subscribe.assert_not_called()
+
+
 # --- on_disconnect ---
 
 
