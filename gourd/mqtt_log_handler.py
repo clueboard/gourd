@@ -1,9 +1,9 @@
 import logging
-from typing import Any
 
+import paho.mqtt.client
 
 class MQTTLogHandler(logging.Handler):
-    def __init__(self, mqtt_client: Any, topic: str, qos: int = 0, retain: bool = False) -> None:
+    def __init__(self, mqtt_client: paho.mqtt.client.Client, topic: str, qos: int = 0, retain: bool = False) -> None:
         super().__init__()
 
         self.mqtt = mqtt_client

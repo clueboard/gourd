@@ -57,9 +57,9 @@ def test_override_mqtt_host():
 
     app = make_gourd()
     config = make_config(mqtt_host='broker.example')
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.mqtt_host == 'broker.example'
 
 
@@ -68,9 +68,9 @@ def test_override_mqtt_port():
 
     app = make_gourd()
     config = make_config(mqtt_port=8883)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.mqtt_port == 8883
 
 
@@ -79,9 +79,9 @@ def test_override_timeout():
 
     app = make_gourd()
     config = make_config(timeout=60)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.timeout == 60
 
 
@@ -90,9 +90,9 @@ def test_override_qos():
 
     app = make_gourd()
     config = make_config(qos=2)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.qos == 2
 
 
@@ -102,9 +102,9 @@ def test_override_qos_syncs_log_handler():
     app = make_gourd(log_mqtt=True)
     assert app.mqtt_log_handler is not None
     config = make_config(qos=0)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.qos == 0
     assert app.mqtt_log_handler.qos == 0
 
@@ -116,9 +116,9 @@ def test_none_values_do_not_override():
     original_host = app.mqtt_host
     original_port = app.mqtt_port
     config = make_config()  # all None
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.mqtt_host == original_host
     assert app.mqtt_port == original_port
 
@@ -131,9 +131,9 @@ def test_credential_override_both_provided():
 
     app = make_gourd()
     config = make_config(mqtt_username='user', mqtt_password='pass')
-    cli = MagicMock()
 
-    _apply_credential_overrides(cli, config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_credential_overrides(app)
     app.mqtt.username_pw_set.assert_called_with('user', 'pass')
     assert app.username == 'user'
 
@@ -143,10 +143,10 @@ def test_credential_override_username_only_exits():
 
     app = make_gourd()
     config = make_config(mqtt_username='user')
-    cli = MagicMock()
 
-    with pytest.raises(SystemExit) as exc_info:
-        _apply_credential_overrides(cli, config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        with pytest.raises(SystemExit) as exc_info:
+            _apply_credential_overrides(app)
     assert exc_info.value.code == 2
 
 
@@ -155,10 +155,10 @@ def test_credential_override_password_only_exits():
 
     app = make_gourd()
     config = make_config(mqtt_password='pass')
-    cli = MagicMock()
 
-    with pytest.raises(SystemExit) as exc_info:
-        _apply_credential_overrides(cli, config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        with pytest.raises(SystemExit) as exc_info:
+            _apply_credential_overrides(app)
     assert exc_info.value.code == 2
 
 
@@ -167,10 +167,10 @@ def test_credential_override_neither_does_nothing():
 
     app = make_gourd()
     config = make_config()
-    cli = MagicMock()
 
     call_count_before = app.mqtt.username_pw_set.call_count
-    _apply_credential_overrides(cli, config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_credential_overrides(app)
     assert app.mqtt.username_pw_set.call_count == call_count_before
 
 
@@ -182,9 +182,9 @@ def test_status_enable_sets_will():
 
     app = make_gourd(status_enabled=False)
     config = make_config(status_enabled=True)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.status_enabled is True
     app.mqtt.will_set.assert_called_once_with(app.status_topic, payload=app.status_offline, qos=1, retain=True)
 
@@ -194,9 +194,9 @@ def test_status_disable_clears_will():
 
     app = make_gourd(status_enabled=True)
     config = make_config(status_enabled=False)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.status_enabled is False
     app.mqtt.will_clear.assert_called_once()
 
@@ -211,7 +211,8 @@ def test_log_mqtt_enable_creates_handler():
     assert app.mqtt_log_handler is None
     config = make_config(log_mqtt=True)
 
-    _apply_log_mqtt_overrides(config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_log_mqtt_overrides(app)
     assert app.mqtt_log_handler is not None
     assert app.mqtt_log_handler.topic == 'custom/base/debug'
 
@@ -224,10 +225,11 @@ def test_log_mqtt_disable_removes_handler():
     assert handler is not None
     config = make_config(log_mqtt=False)
 
-    with patch.object(handler, 'close') as mock_close:
-        _apply_log_mqtt_overrides(config, app)
-        assert app.mqtt_log_handler is None
-        mock_close.assert_called_once()
+    with patch('gourd.script.cli', make_cli(config)):
+        with patch.object(handler, 'close') as mock_close:
+            _apply_log_mqtt_overrides(app)
+            assert app.mqtt_log_handler is None
+            mock_close.assert_called_once()
 
 
 def test_log_mqtt_topic_override():
@@ -237,7 +239,8 @@ def test_log_mqtt_topic_override():
     assert app.mqtt_log_handler is not None
     config = make_config(log_mqtt_topic='custom/topic')
 
-    _apply_log_mqtt_overrides(config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_log_mqtt_overrides(app)
     assert app.mqtt_log_handler.topic == 'custom/topic'
 
 
@@ -247,7 +250,8 @@ def test_log_mqtt_enable_with_custom_topic():
     app = make_gourd(log_mqtt=False)
     config = make_config(log_mqtt=True, log_mqtt_topic='custom/debug')
 
-    _apply_log_mqtt_overrides(config, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_log_mqtt_overrides(app)
     assert app.mqtt_log_handler is not None
     assert app.mqtt_log_handler.topic == 'custom/debug'
 
@@ -260,9 +264,9 @@ def test_override_max_inflight_messages():
 
     app = make_gourd()
     config = make_config(max_inflight_messages=10)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     app.mqtt.max_inflight_messages_set.assert_called_with(10)
 
 
@@ -271,9 +275,9 @@ def test_override_max_queued_messages():
 
     app = make_gourd()
     config = make_config(max_queued_messages=100)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     app.mqtt.max_queued_messages_set.assert_called_with(100)
 
 
@@ -285,9 +289,9 @@ def test_override_tls_enabled_updates_state_without_configuring_client():
 
     app = make_gourd()
     config = make_config(tls_enabled=True)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is True
     app.mqtt.tls_set.assert_not_called()
     app.mqtt.tls_insecure_set.assert_not_called()
@@ -301,9 +305,9 @@ def test_override_tls_verify_false_updates_state_without_configuring_client():
 
     app = make_gourd()
     config = make_config(tls_enabled=True, tls_verify=False)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is True
     assert app.tls_verify is False
     app.mqtt.tls_set.assert_not_called()
@@ -315,9 +319,9 @@ def test_override_tls_verify_false_without_tls_enabled_does_not_enable_tls():
 
     app = make_gourd()
     config = make_config(tls_verify=False)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is False
     assert app.tls_verify is False
     app.mqtt.tls_set.assert_not_called()
@@ -333,9 +337,9 @@ def test_override_tls_cert_paths_enable_without_configuring_client():
         tls_certfile='/tmp/client-chain.pem',
         tls_keyfile='/tmp/client.key',
     )
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is True
     assert app.tls_ca_certs == '/tmp/ca-chain.pem'
     assert app.tls_certfile == '/tmp/client-chain.pem'
@@ -354,9 +358,9 @@ def test_override_tls_disabled_with_cert_paths_does_not_enable_tls():
         tls_certfile='/tmp/client-chain.pem',
         tls_keyfile='/tmp/client.key',
     )
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is False
     app.mqtt.tls_set.assert_not_called()
     app.mqtt.tls_insecure_set.assert_not_called()
@@ -367,9 +371,9 @@ def test_override_no_tls_enabled_prevents_auto_enabled_tls_from_configuring_on_c
 
     app = make_gourd(tls_ca_certs='/tmp/ca-chain.pem')
     config = make_config(tls_enabled=False)
-    cli = make_cli(config)
 
-    _apply_overrides(cli, app)
+    with patch('gourd.script.cli', make_cli(config)):
+        _apply_overrides(app)
     assert app.tls_enabled is False
     app.connect()
     app.mqtt.tls_set.assert_not_called()
