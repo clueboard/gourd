@@ -25,8 +25,8 @@ class Gourd:
         mqtt_topic=None             Base MQTT topic for derived topics (When None it's f'{app_name}/{gethostname()}')
         mqtt_host='localhost'       The MQTT server to connect to
         mqtt_port=1883              The port number to connect to
-        username=''                 The username to connect to the MQTT server with
-        password=''                 The password to connect to the MQTT server with
+        username=None               The username to connect to the MQTT server with
+        password=None               The password to connect to the MQTT server with
         qos=1                       Default QOS Level for messages
         timeout=30                  The timeout for the MQTT connection
         log_mqtt=True               Set to false to disable mqtt logging
@@ -52,8 +52,8 @@ class Gourd:
         mqtt_topic: Optional[str] = None,
         mqtt_host: str = 'localhost',
         mqtt_port: int = 1883,
-        username: Optional[str] = '',
-        password: Optional[str] = '',
+        username: Optional[str] = None,
+        password: Optional[str] = None,
         qos: int = 1,
         timeout: int = 30,
         log_mqtt: bool = True,
@@ -108,7 +108,7 @@ class Gourd:
         self.mqtt.enable_logger(paho_log)
         self.mqtt.max_inflight_messages_set(max_inflight_messages)
         self.mqtt.max_queued_messages_set(max_queued_messages)
-        self.mqtt.username_pw_set(username, password)
+        self.mqtt.username_pw_set(self.username, password)
 
         # Register mqtt callbacks
         self.mqtt.on_connect = self.on_connect
