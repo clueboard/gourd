@@ -3,6 +3,7 @@
 import logging
 import sys
 from importlib import import_module
+from typing import Any
 
 from milc import cli
 
@@ -33,7 +34,7 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
 @cli.entrypoint('CLI for starting Gourd apps.')
-def main(cli):
+def main(cli: Any) -> None:
     gourd_app = cli.args.gourd_app
 
     if ':' not in gourd_app:
@@ -61,7 +62,7 @@ def main(cli):
     app.run_forever()
 
 
-def _apply_overrides(cli, app):
+def _apply_overrides(cli: Any, app: Any) -> None:
     """Apply CLI/env overrides using milc's resolved config.
 
     milc resolves values in cli.config.general with arg > env > config file >
@@ -103,7 +104,7 @@ def _apply_overrides(cli, app):
         app.mqtt.max_queued_messages_set(config.max_queued_messages)
 
 
-def _apply_credential_overrides(cli, config, app):
+def _apply_credential_overrides(cli: Any, config: Any, app: Any) -> None:
     """Apply MQTT username/password overrides.
 
     Both --mqtt-username and --mqtt-password must be provided together.
@@ -124,7 +125,7 @@ def _apply_credential_overrides(cli, config, app):
     app.mqtt.username_pw_set(mqtt_username, mqtt_password)  # Not storing mqtt_password is a deliberate choice
 
 
-def _apply_log_mqtt_overrides(config, app):
+def _apply_log_mqtt_overrides(config: Any, app: Any) -> None:
     """Apply MQTT logging overrides."""
     default_log_topic = f'{app.mqtt_topic}/debug'
     log_mqtt = config.log_mqtt
@@ -146,7 +147,7 @@ def _apply_log_mqtt_overrides(config, app):
         app.mqtt_log_handler.topic = log_mqtt_topic
 
 
-def _apply_tls_overrides(config, app):
+def _apply_tls_overrides(config: Any, app: Any) -> None:
     """Apply MQTT TLS overrides."""
     if config.tls_enabled is not None:
         app.tls_enabled = config.tls_enabled

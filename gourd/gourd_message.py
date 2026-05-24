@@ -1,17 +1,18 @@
 import json
 import logging
+from typing import Any
 
 log = logging.getLogger(__name__)
 
 
 class GourdMessage:
-    def __init__(self, mqtt_message):
+    def __init__(self, mqtt_message: Any) -> None:
         self.mqtt_message = mqtt_message
-        self._json = None
+        self._json: Any | None = None
         self.payload = mqtt_message.payload
 
     @property
-    def text(self):
+    def text(self) -> str:
         payload = self.payload
 
         if isinstance(payload, bytes):
@@ -23,7 +24,7 @@ class GourdMessage:
         return str(payload)
 
     @property
-    def json(self):
+    def json(self) -> Any | None:
         if self._json is not None:
             return self._json
 
@@ -49,5 +50,5 @@ class GourdMessage:
 
         return self._json
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         return getattr(self.mqtt_message, attr)
