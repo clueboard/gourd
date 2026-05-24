@@ -11,7 +11,6 @@ class GourdMessage:
     def __init__(self, mqtt_message: Any) -> None:
         self.mqtt_message = mqtt_message
         self._json: Any | None = None
-        self._json_parsed = False
         self.payload = mqtt_message.payload
 
     @property
@@ -28,20 +27,18 @@ class GourdMessage:
 
     @property
     def json(self) -> Any | None:
-        if self._json_parsed:
+        if self._json is not None:
             return self._json
 
         try:
             payload = self.text
         except UnicodeDecodeError:
             self._json = None
-            self._json_parsed = True
 
             return self._json
 
         if not payload.startswith('{') or not payload.endswith('}'):
             self._json = None
-            self._json_parsed = True
 
             return self._json
 
@@ -52,7 +49,6 @@ class GourdMessage:
             parsed_payload = None
 
         self._json = parsed_payload
-        self._json_parsed = True
 
         return self._json
 
