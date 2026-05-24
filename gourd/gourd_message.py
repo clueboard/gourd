@@ -8,9 +8,11 @@ log = logging.getLogger(__name__)
 
 
 class GourdMessage:
+    _JSON_UNSET = object()
+
     def __init__(self, mqtt_message: Any) -> None:
         self.mqtt_message = mqtt_message
-        self._json: Any | None = None
+        self._json: Any = self._JSON_UNSET
         self.payload = mqtt_message.payload
 
     @property
@@ -27,7 +29,7 @@ class GourdMessage:
 
     @property
     def json(self) -> Any | None:
-        if self._json is not None:
+        if self._json is not self._JSON_UNSET:
             return self._json
 
         try:

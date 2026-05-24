@@ -85,6 +85,17 @@ def test_json_cached():
         assert mock_loads.call_count == 1
 
 
+def test_json_invalid_cached(caplog):
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger='gourd.gourd_message'):
+        msg = GourdMessage(make_paho_msg(b'{not valid json}'))
+        assert msg.json is None
+        assert msg.json is None
+
+    assert len(caplog.records) == 1
+
+
 def test_getattr_proxies_to_paho_message():
     paho_msg = make_paho_msg(b'data')
     paho_msg.qos = 1

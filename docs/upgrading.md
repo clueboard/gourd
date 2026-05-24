@@ -9,6 +9,24 @@ tags: docs
 
 ## Upgrading to 2.0.0
 
+### `message_retry_sec` has been removed
+
+`message_retry_sec` was previously deprecated and ignored. In 2.0.0, it has been removed from `Gourd(...)`.
+
+**Before:**
+
+```python
+app = Gourd(app_name='my_app', message_retry_sec=10)
+```
+
+**After:**
+
+```python
+app = Gourd(app_name='my_app')
+```
+
+---
+
 ### `message.json` now returns `None` on failure instead of `{}`
 
 Previously, `message.json` returned an empty dict `{}` when the payload could not be decoded or was not a JSON object. It now returns `None`.
@@ -65,6 +83,30 @@ def handle_sensor(message):
 def handle_sensor(message):
     app.log.info(f'{message.topic}: {message.text}')
 ```
+
+---
+
+### Invalid MQTT wildcard filters now raise `ValueError`
+
+`mqtt_wildcard()` now validates wildcard patterns. Invalid filters (for example `foo#` or `foo/#/bar`) raise `ValueError` instead of being treated as loose string patterns.
+
+If you register subscriptions dynamically, validate/correct malformed filters before registering them.
+
+---
+
+### `gourd` CLI now applies config/env overrides for MQTT settings
+
+The CLI now supports applying command-line and environment-driven overrides for connection/auth/QoS/status/logging/TLS settings.
+
+If you run via `gourd module:app`, existing environment variables or CLI flags can now change runtime behavior that was previously controlled only in Python code.
+
+---
+
+### TLS can auto-enable when certificate paths are provided
+
+If TLS certificate paths are configured (`tls_ca_certs`, `tls_certfile`, `tls_keyfile`), TLS is automatically enabled unless explicitly disabled.
+
+Set `tls_enabled=False` explicitly if you provide certificate paths but do not want TLS enabled.
 
 ---
 

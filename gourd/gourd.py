@@ -204,6 +204,9 @@ class Gourd:
 
     def do_subscribe(self) -> None:
         """Subscribe to our topics."""
+        if not self.mqtt_topics:
+            return
+
         self.mqtt.subscribe([(topic, self.qos) for topic in self.mqtt_topics])
 
     def on_connect(self, client: Any, userdata: Any, connect_flags: Any, reason_code: Any, properties: Any) -> None:
