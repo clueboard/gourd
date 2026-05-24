@@ -44,7 +44,7 @@ def test_non_utf8_bytes_payload_preserved():
     with pytest.raises(UnicodeDecodeError):
         _ = msg.text
 
-    assert msg.json == {}
+    assert msg.json == None
 
 
 def test_json_valid():
@@ -57,24 +57,24 @@ def test_json_invalid_returns_empty_dict(caplog):
 
     with caplog.at_level(logging.WARNING, logger='gourd.gourd_message'):
         msg = GourdMessage(make_paho_msg(b'{not valid json}'))
-        assert msg.json == {}
+        assert msg.json == None
     assert len(caplog.records) == 1
     assert caplog.records[0].levelname == 'WARNING'
 
 
 def test_json_empty_payload_returns_empty_dict():
     msg = GourdMessage(make_paho_msg(b''))
-    assert msg.json == {}
+    assert msg.json == None
 
 
 def test_json_non_object_returns_empty_dict():
     msg = GourdMessage(make_paho_msg(b'"just a string"'))
-    assert msg.json == {}
+    assert msg.json == None
 
 
 def test_json_non_utf8_payload_returns_empty_dict():
     msg = GourdMessage(make_paho_msg(b'\xff'))
-    assert msg.json == {}
+    assert msg.json == None
 
 
 def test_json_cached():

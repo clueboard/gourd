@@ -30,12 +30,12 @@ class GourdMessage:
         try:
             payload = self.text
         except UnicodeDecodeError:
-            self._json = {}
+            self._json = None
 
             return self._json
 
         if not payload.startswith('{') or not payload.endswith('}'):
-            self._json = {}
+            self._json = None
 
             return self._json
 
@@ -43,10 +43,7 @@ class GourdMessage:
             parsed_payload = json.loads(payload)
         except Exception as e:
             log.warning('Could not decode payload as JSON: %s (%s)', payload, e)
-            parsed_payload = {}
-
-        if not isinstance(parsed_payload, dict):
-            parsed_payload = {}
+            parsed_payload = None
 
         self._json = parsed_payload
 

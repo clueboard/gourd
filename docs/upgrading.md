@@ -9,6 +9,41 @@ tags: docs
 
 ## Upgrading to 2.0.0
 
+### `message.json` now returns `None` on failure instead of `{}`
+
+Previously, `message.json` returned an empty dict `{}` when the payload could not be decoded or was not a JSON object. It now returns `None`.
+
+Code that distinguishes a failed parse from a successfully parsed empty-ish result should be updated. Code that simply uses `if message.json:` as a truthy check will continue to work unchanged, since both `None` and `{}` are falsy.
+
+**Before** — guarded by truthiness (still works):
+
+```python
+@app.subscribe('sensors/#')
+def handle(message):
+    if message.json:
+        temp = message.json.get('celsius')
+```
+
+**Before** — explicit empty-dict check (must update):
+
+```python
+@app.subscribe('sensors/#')
+def handle(message):
+    if message.json != {}:
+        temp = message.json.get('celsius')
+```
+
+**After** — check against `None` if an explicit check is needed:
+
+```python
+@app.subscribe('sensors/#')
+def handle(message):
+    if message.json is not None:
+        temp = message.json.get('celsius')
+```
+
+---
+
 ### `message.payload` now preserves the original MQTT payload
 
 In previous releases, `message.payload` was decoded as UTF-8 text and stripped. In 2.0.0, `message.payload` preserves the original payload from paho-mqtt unchanged, which is typically `bytes`.

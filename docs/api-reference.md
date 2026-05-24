@@ -172,11 +172,11 @@ The raw payload from paho-mqtt, unchanged.
 The payload decoded as UTF-8 text. For byte payloads, the payload is decoded as UTF-8 and leading and trailing whitespace is stripped. If a byte payload is not valid UTF-8, accessing `message.text` raises `UnicodeDecodeError`.
 
 Use `message.text` only when the payload is known to be UTF-8 text. For arbitrary or binary payloads, use `message.payload` instead.
-**`message.json`** — `dict`
+**`message.json`** — `dict | None`
 
-If the payload looks like a JSON object (starts with `{` and ends with `}`), this is the parsed result. Otherwise it is an empty dict `{}`.
+If the payload is a valid UTF-8 encoded JSON object (starts with `{` and ends with `}`), this is the parsed result. Otherwise it is `None`.
 
-**Important:** `message.json` returns `{}` (empty dict) when parsing fails or the payload is not a JSON object — it never returns `None` and never raises an exception. An empty dict is falsy, so use `if message.json` to check whether parsing succeeded.
+**Important:** `message.json` returns `None` when the payload is not valid UTF-8, is not valid JSON, or is not a JSON object — it never raises an exception. `None` is falsy, so use `if message.json` to check whether parsing succeeded.
 
 ```python
 @app.subscribe('sensors/#')
@@ -184,7 +184,7 @@ def handle(message):
     if message.json:
         temp = message.json.get('celsius')
     else:
-        # plain string payload
+        # plain string payload or undecodable payload
         raw = message.text
 ```
 
