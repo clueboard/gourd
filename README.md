@@ -63,6 +63,7 @@ Run checks:
 ```shell
 uv run ruff format --check gourd/ tests/
 uv run ruff check gourd/ tests/
+uv run ruff check --select FA102,UP007,UP045 gourd/ tests/
 uv run ty check gourd/ tests/
 uv run pytest
 ```
