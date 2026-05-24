@@ -2,6 +2,7 @@ import logging
 
 import paho.mqtt.client
 
+
 class MQTTLogHandler(logging.Handler):
     def __init__(self, mqtt_client: paho.mqtt.client.Client, topic: str, qos: int = 0, retain: bool = False) -> None:
         super().__init__()
