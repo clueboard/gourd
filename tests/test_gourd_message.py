@@ -44,7 +44,7 @@ def test_non_utf8_bytes_payload_preserved():
     with pytest.raises(UnicodeDecodeError):
         _ = msg.text
 
-
+    assert msg.json == {}
 def test_json_valid():
     msg = GourdMessage(make_paho_msg(b'{"key": "value"}'))
     assert msg.json == {'key': 'value'}
