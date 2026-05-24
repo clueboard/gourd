@@ -29,8 +29,8 @@ app = Gourd(app_name='my_app', mqtt_host='localhost')
 
 
 @app.subscribe('#')
-def print_all(message):
-    app.log.info(f'{message.topic}: {message.payload}')
+def print_all_messages(message):
+    app.log.info(f'{message.topic}: {message.text}')
 ```
 
 Run it:

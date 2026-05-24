@@ -8,17 +8,30 @@ class GourdMessage:
     def __init__(self, mqtt_message):
         self.mqtt_message = mqtt_message
         self._json = None
+        self.payload = mqtt_message.payload
 
-        try:
-            self.payload = mqtt_message.payload.decode('utf-8').strip()
-        except AttributeError:
-            self.payload = mqtt_message.payload
+    @property
+    def text(self):
+        payload = self.payload
+
+        if isinstance(payload, bytes):
+            return payload.decode('utf-8').strip()
+
+        if isinstance(payload, str):
+            return payload
+
+        return str(payload)
 
     @property
     def json(self):
-        payload = self.payload
-
         if self._json is not None:
+            return self._json
+
+        try:
+            payload = self.text
+        except UnicodeDecodeError:
+            self._json = {}
+
             return self._json
 
         if not payload.startswith('{') or not payload.endswith('}'):
