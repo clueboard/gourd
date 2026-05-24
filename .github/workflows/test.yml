@@ -30,6 +30,9 @@ jobs:
       - name: Lint with ruff
         run: uv run ruff check gourd/ tests/
 
+      - name: Enforce modern type syntax with ruff
+        run: uv run ruff check --select FA102,UP007,UP045 gourd/ tests/
+
       - name: Type check with ty
         run: uv run ty check gourd/ tests/
 

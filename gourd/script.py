@@ -3,8 +3,9 @@
 import logging
 import sys
 from importlib import import_module
+from typing import Any
 
-from milc import cli
+from milc import cli, MILCInterface
 
 from gourd.mqtt_log_handler import MQTTLogHandler
 
@@ -33,7 +34,7 @@ cli.milc_options(name='Gourd', version=__VERSION__, author='Clueboard', env_pref
 @cli.argument('--relative-path', action='store_boolean', default=True, help='relative path for the entrypoint. (Default: Enabled)')
 @cli.argument('gourd_app', arg_only=True, help='The entrypoint for your application in `<module>:<object>` format. EG: gourd_example:app')
 @cli.entrypoint('CLI for starting Gourd apps.')
-def main(cli):
+def main(cli: MILCInterface) -> None:
     gourd_app = cli.args.gourd_app
 
     if ':' not in gourd_app:
@@ -57,59 +58,55 @@ def main(cli):
         cli.log.error('Could not find object %s in module %s!', app_name, module_name)
         sys.exit(2)
 
-    _apply_overrides(cli, app)
+    _apply_overrides(app)
     app.run_forever()
 
 
-def _apply_overrides(cli, app):
+def _apply_overrides(app: Any) -> None:
     """Apply CLI/env overrides using milc's resolved config.
 
     milc resolves values in cli.config.general with arg > env > config file >
     defaults/constructor precedence.
-    Only resolved values explicitly set (not None) override the app's
-    constructor defaults.
     """
-    config = cli.config.general
+    _apply_credential_overrides(app)
+    _apply_log_mqtt_overrides(app)
+    _apply_tls_overrides(app)
 
-    _apply_credential_overrides(cli, config, app)
-    _apply_log_mqtt_overrides(config, app)
-    _apply_tls_overrides(config, app)
+    if cli.config.general.mqtt_host is not None:
+        app.mqtt_host = cli.config.general.mqtt_host
 
-    if config.mqtt_host is not None:
-        app.mqtt_host = config.mqtt_host
+    if cli.config.general.mqtt_port is not None:
+        app.mqtt_port = cli.config.general.mqtt_port
 
-    if config.mqtt_port is not None:
-        app.mqtt_port = config.mqtt_port
+    if cli.config.general.timeout is not None:
+        app.timeout = cli.config.general.timeout
 
-    if config.timeout is not None:
-        app.timeout = config.timeout
-
-    if config.qos is not None:
-        app.qos = config.qos
+    if cli.config.general.qos is not None:
+        app.qos = cli.config.general.qos
         if app.mqtt_log_handler:
-            app.mqtt_log_handler.qos = config.qos
+            app.mqtt_log_handler.qos = cli.config.general.qos
 
-    if config.status_enabled is not None:
-        app.status_enabled = config.status_enabled
+    if cli.config.general.status_enabled is not None:
+        app.status_enabled = cli.config.general.status_enabled
         if app.status_enabled:
             app.mqtt.will_set(app.status_topic, payload=app.status_offline, qos=1, retain=True)
         else:
             app.mqtt.will_clear()
 
-    if config.max_inflight_messages is not None:
-        app.mqtt.max_inflight_messages_set(config.max_inflight_messages)
+    if cli.config.general.max_inflight_messages is not None:
+        app.mqtt.max_inflight_messages_set(cli.config.general.max_inflight_messages)
 
-    if config.max_queued_messages is not None:
-        app.mqtt.max_queued_messages_set(config.max_queued_messages)
+    if cli.config.general.max_queued_messages is not None:
+        app.mqtt.max_queued_messages_set(cli.config.general.max_queued_messages)
 
 
-def _apply_credential_overrides(cli, config, app):
+def _apply_credential_overrides(app: Any) -> None:
     """Apply MQTT username/password overrides.
 
     Both --mqtt-username and --mqtt-password must be provided together.
     """
-    mqtt_username = config.mqtt_username
-    mqtt_password = config.mqtt_password
+    mqtt_username = cli.config.general.mqtt_username
+    mqtt_password = cli.config.general.mqtt_password
     has_username = mqtt_username is not None
     has_password = mqtt_password is not None
 
@@ -124,11 +121,11 @@ def _apply_credential_overrides(cli, config, app):
     app.mqtt.username_pw_set(mqtt_username, mqtt_password)  # Not storing mqtt_password is a deliberate choice
 
 
-def _apply_log_mqtt_overrides(config, app):
+def _apply_log_mqtt_overrides(app: Any) -> None:
     """Apply MQTT logging overrides."""
     default_log_topic = f'{app.mqtt_topic}/debug'
-    log_mqtt = config.log_mqtt
-    log_mqtt_topic = config.log_mqtt_topic
+    log_mqtt = cli.config.general.log_mqtt
+    log_mqtt_topic = cli.config.general.log_mqtt_topic
 
     if log_mqtt is not None:
         if log_mqtt and not app.mqtt_log_handler:
@@ -146,24 +143,24 @@ def _apply_log_mqtt_overrides(config, app):
         app.mqtt_log_handler.topic = log_mqtt_topic
 
 
-def _apply_tls_overrides(config, app):
+def _apply_tls_overrides(app: Any) -> None:
     """Apply MQTT TLS overrides."""
-    if config.tls_enabled is not None:
-        app.tls_enabled = config.tls_enabled
+    if cli.config.general.tls_enabled is not None:
+        app.tls_enabled = cli.config.general.tls_enabled
 
-    if config.tls_verify is not None:
-        app.tls_verify = config.tls_verify
+    if cli.config.general.tls_verify is not None:
+        app.tls_verify = cli.config.general.tls_verify
 
-    if config.tls_ca_certs is not None:
-        app.tls_ca_certs = config.tls_ca_certs
+    if cli.config.general.tls_ca_certs is not None:
+        app.tls_ca_certs = cli.config.general.tls_ca_certs
 
-    if config.tls_certfile is not None:
-        app.tls_certfile = config.tls_certfile
+    if cli.config.general.tls_certfile is not None:
+        app.tls_certfile = cli.config.general.tls_certfile
 
-    if config.tls_keyfile is not None:
-        app.tls_keyfile = config.tls_keyfile
+    if cli.config.general.tls_keyfile is not None:
+        app.tls_keyfile = cli.config.general.tls_keyfile
 
-    if config.tls_enabled is None and not app.tls_enabled and app._should_auto_enable_tls():
+    if cli.config.general.tls_enabled is None and not app.tls_enabled and app._should_auto_enable_tls():
         app.tls_enabled = True
 
 

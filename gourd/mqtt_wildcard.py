@@ -1,7 +1,7 @@
 import re
 
 
-def _validate_wildcard(pattern):
+def _validate_wildcard(pattern: str) -> None:
     """Raises ValueError if pattern is not a valid MQTT topic filter."""
     levels = pattern.split('/')
     for i, level in enumerate(levels):
@@ -14,7 +14,7 @@ def _validate_wildcard(pattern):
             raise ValueError(f"Invalid MQTT topic filter: '+' must occupy an entire level: {pattern!r}")
 
 
-def mqtt_wildcard(topic, wildcard):
+def mqtt_wildcard(topic: str, wildcard: str) -> bool:
     """Returns True if topic matches the wildcard string.
 
     Raises ValueError for malformed wildcard patterns.
@@ -22,7 +22,7 @@ def mqtt_wildcard(topic, wildcard):
     _validate_wildcard(wildcard)
 
     levels = wildcard.split('/')
-    regex_levels = []
+    regex_levels: list[str] = []
 
     for i, level in enumerate(levels):
         if level == '#':

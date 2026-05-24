@@ -1,8 +1,10 @@
 import logging
 
+import paho.mqtt.client
+
 
 class MQTTLogHandler(logging.Handler):
-    def __init__(self, mqtt_client, topic, qos=0, retain=False):
+    def __init__(self, mqtt_client: paho.mqtt.client.Client, topic: str, qos: int = 0, retain: bool = False) -> None:
         super().__init__()
 
         self.mqtt = mqtt_client
@@ -10,7 +12,7 @@ class MQTTLogHandler(logging.Handler):
         self.qos = qos
         self.retain = retain
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         if not self.mqtt.is_connected():  # Only emit logs when MQTT is connected
             return
 
