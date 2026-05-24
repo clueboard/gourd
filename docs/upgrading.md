@@ -7,6 +7,32 @@ tags: docs
 
 # Upgrading
 
+## Upgrading to 2.0.0
+
+### `message.payload` now preserves the original MQTT payload
+
+In previous releases, `message.payload` was decoded as UTF-8 text and stripped. In 2.0.0, `message.payload` preserves the original payload from paho-mqtt unchanged, which is typically `bytes`.
+
+Use `message.text` when you want UTF-8 decoded text. This keeps binary payloads available without losing the original bytes.
+
+**Before:**
+
+```python
+@app.subscribe('sensors/#')
+def handle_sensor(message):
+    app.log.info(f'{message.topic}: {message.payload}')
+```
+
+**After** — use `message.text` for decoded text payloads:
+
+```python
+@app.subscribe('sensors/#')
+def handle_sensor(message):
+    app.log.info(f'{message.topic}: {message.text}')
+```
+
+---
+
 ## Upgrading to 1.0.0
 
 ### paho-mqtt upgraded from v1 to v2
