@@ -4,10 +4,10 @@ import ssl
 import threading
 from collections.abc import Callable
 from socket import gethostname
-from typing import Any
+from typing import Any, Optional
 
 import paho.mqtt.client
-from paho.mqtt.client import CallbackAPIVersion, MQTTMessage
+from paho.mqtt.client import CallbackAPIVersion, MQTTMessage, PayloadType
 
 from .gourd_message import GourdMessage
 from .mqtt_log_handler import MQTTLogHandler
@@ -49,27 +49,27 @@ class Gourd:
         self,
         app_name: str,
         *,
-        mqtt_topic: str | None = None,
+        mqtt_topic: Optional[str] = None,
         mqtt_host: str = 'localhost',
         mqtt_port: int = 1883,
-        username: str | None = '',
-        password: str | None = '',
+        username: Optional[str] = '',
+        password: Optional[str] = '',
         qos: int = 1,
         timeout: int = 30,
         log_mqtt: bool = True,
-        mqtt_log_topic: str | None = None,
-        log_topic: str | None = None,
+        mqtt_log_topic: Optional[str] = None,
+        log_topic: Optional[str] = None,
         status_enabled: bool = True,
-        status_topic: str | None = None,
+        status_topic: Optional[str] = None,
         status_online: str = 'ON',
         status_offline: str = 'OFF',
         max_inflight_messages: int = 20,
         max_queued_messages: int = 0,
         tls_enabled: bool = False,
         tls_verify: bool = True,
-        tls_ca_certs: str | None = None,
-        tls_certfile: str | None = None,
-        tls_keyfile: str | None = None,
+        tls_ca_certs: Optional[str] = None,
+        tls_certfile: Optional[str] = None,
+        tls_keyfile: Optional[str] = None,
     ) -> None:
         self.name = app_name
         self.mqtt_host = mqtt_host
@@ -119,7 +119,7 @@ class Gourd:
             self.mqtt.will_set(self.status_topic, payload=self.status_offline, qos=1, retain=True)
 
         # Setup MQTT logging
-        self.mqtt_log_handler: MQTTLogHandler | None = None
+        self.mqtt_log_handler: Optional[MQTTLogHandler] = None
         if log_mqtt:
             self.mqtt_log_handler = MQTTLogHandler(mqtt_client=self.mqtt, topic=mqtt_log_topic, qos=qos, retain=False)
             self.mqtt_log_handler.setFormatter(logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s'))
@@ -142,7 +142,7 @@ class Gourd:
     def _should_auto_enable_tls(self) -> bool:
         return any((self.tls_ca_certs, self.tls_certfile, self.tls_keyfile))
 
-    def publish(self, topic: str, payload: object | None = None, *, qos: int | None = None, **kwargs: Any) -> None:
+    def publish(self, topic: str, payload: PayloadType = None, *, qos: Optional[int] = None, **kwargs: Any) -> None:
         """Publish a message to the MQTT server."""
         if qos is None:
             qos = self.qos
