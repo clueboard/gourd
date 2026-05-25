@@ -46,6 +46,7 @@ Full documentation is available at **https://gourd.clueboard.co/** and in the [d
 * [Getting Started](docs/getting-started.md)
 * [Configuration](docs/configuration.md)
 * [API Reference](docs/api-reference.md)
+* [Code Style](docs/codestyle.md)
 * [Examples](docs/examples.md)
 * [Upgrading](docs/upgrading.md)
 * [Contributing](docs/contributing.md)

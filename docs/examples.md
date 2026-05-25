@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: Examples
-order: 4
+order: 5
 tags: docs
 ---
 

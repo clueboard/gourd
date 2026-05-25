@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: Upgrading
-order: 5
+order: 6
 tags: docs
 ---
 

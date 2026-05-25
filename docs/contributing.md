@@ -1,13 +1,17 @@
 ---
 layout: base.njk
 title: Contributing
-order: 6
+order: 7
 tags: docs
 ---
 
 # Contributing
 
 Contributions are welcome. If you've fixed a bug or built a feature, open a PR and we'll review it.
+
+## Code Style
+
+Read up on our [Code Style](codestyle.md) to understand our Data-Oriented Functional-Procedural-Programming style.
 
 ## Development Setup
 
